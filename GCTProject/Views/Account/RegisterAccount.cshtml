@@ -1,0 +1,56 @@
+﻿@model CardRegistration
+@using Microsoft.Extensions.Options
+@inject IOptions<StripeSettings> Stripe
+
+@{
+    ViewData["Title"] = "RegisterAccount";
+}
+
+<form action="/Account/CardRegistration" method="POST">
+    <article>
+        <label>Amount: $1.00</label>
+    </article>
+    <script src="//checkout.stripe.com/v2/checkout.js"
+            class="stripe-button"
+            data-email="@ViewData["Email"]"
+            data-key="@Stripe.Value.PublishableKey"
+            data-locale="auto"
+            data-description="Sample Charge"
+            data-amount="500">
+    </script>
+</form>
+
+
+
+<div class="row">
+    <div class="col-md-4">
+        <form asp-route-returnUrl="@ViewData["ReturnUrl"]" asp-action="Charge" asp-controller="Booking" method="post">
+            <input asp-for="Id" hidden value="@ViewData["Id"]" />
+            <input asp-for="Email" hidden value="@ViewData["Email"]" />
+            <div class="form-group">
+                <label> Card details are optional, data will not be saved if you do not include all details</label>
+            </div>
+            <hr />
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="CardNumber"></label>
+                <input asp-for="CardNumber" class="form-control" />
+                <span asp-validation-for="CardNumber" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CVC"></label>
+                <input asp-for="CVC" class="form-control" />
+                <span asp-validation-for="CVC" class="text-danger"></span>
+            </div>
+            <div class="form-group" id="custName">
+                <label asp-for="ExpiryDate"></label>
+                <input asp-for="ExpiryDate" class="form-control" />
+                <span asp-validation-for="ExpiryDate" class="text-danger"></span>
+            </div>
+            <button type="submit" class="btn btn-default">Submit</button>
+        </form>
+        <form asp-route-returnUrl="@ViewData["ReturnUrl"]" asp-action="Index" asp-controller="Home" method="post">
+            <button type="submit" class="btn btn-default">Skip</button>
+    </form>
+    </div>
+</div>

@@ -1,0 +1,100 @@
+﻿@model Register
+@{
+    ViewData["Title"] = "Register";
+}
+<h2>@ViewData["Title"]</h2>
+<div class="row">
+    <div class="col-md-4">
+        <form asp-route-returnUrl="@ViewData["ReturnUrl"]" method="post">
+            <h4>Create a new account.</h4>
+            <hr />
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="CustomerRegistration"></label>
+                @Html.CheckBoxFor(model => model.CustomerRegistration, new { id = "custReg", onclick = "javascript:checkboxclick();" })
+            </div>
+            <div class="form-group">
+                <label asp-for="Email"></label>
+                <input asp-for="Email" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="form-group" id="custName">
+                <label asp-for="FirstName"></label>
+                <input asp-for="FirstName" class="form-control" />
+                <span asp-validation-for="FirstName" class="text-danger"></span>
+            </div>
+            <div class="form-group" id="custSurname">
+                <label asp-for="Surname"></label>
+                <input asp-for="Surname" class="form-control" />
+                <span asp-validation-for="Surname" class="text-danger"></span>
+            </div>
+            <div class="form-group" id="aName" style="display: none;">
+                <label>Agency/Social Club Name</label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="FLAddress"></label>
+                <input asp-for="FLAddress" class="form-control" />
+                <span asp-validation-for="FLAddress" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SLAddress"></label>
+                <input asp-for="SLAddress" class="form-control" />
+                <span asp-validation-for="SLAddress" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PostCode"></label>
+                <input asp-for="PostCode" class="form-control" />
+                <span asp-validation-for="PostCode" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Password"></label>
+                <input asp-for="Password" class="form-control" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ConfirmPassword"></label>
+                <input asp-for="ConfirmPassword" class="form-control" />
+                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+            </div>
+            <div class="form-group" id="dob">
+                <label asp-for="DateOfBirth"></label>
+                <input asp-for="DateOfBirth" class="form-control" />
+                <span asp-validation-for="DateOfBirth" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PhoneNumber"></label>
+                <input asp-for="PhoneNumber" class="form-control" />
+                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label> Card details are optional, data will not be saved if you do not include all details</label>
+            </div>
+            <button type="submit" class="btn btn-default">Save and Continue</button>
+        </form>
+    </div>
+</div>
+<script language="javascript" type="text/javascript">
+    
+    function checkboxclick() {
+
+        if ($("#custReg").is(':checked')) {
+            $("#dob").hide(500);
+            $("#custName").hide(500);
+            $("#custSurname").hide(500);
+            $("#aName").show(500);
+        }
+        else {
+            $("#dob").show(500);
+            $("#custName").show(500);
+            $("#custSurname").show(500);
+            $("#aName").hide(500);
+
+        }
+        }
+</script>
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}

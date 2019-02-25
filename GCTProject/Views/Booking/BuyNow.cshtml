@@ -1,0 +1,50 @@
+﻿@model TicketAndReceipt
+
+@{
+    ViewData["Title"] = "BuyNow";
+}
+
+@section Styles {
+    <style type="text/css">
+    .ticket {
+        border: 2px solid black;
+        padding: 5px;
+    }
+    </style>
+}
+
+@for (int i = 0; i < Model.Rows.Count(); i++)
+{
+    <div class="container ticket">
+        <div class="row justify-content-center">
+            <div class="col col-lg-8 justify-content-start">
+                Peformance : @Model.PerformanceName
+            </div>
+            <div class="col col-lg-2 justify-content-end">
+                Date : @Model.Date
+            </div>
+        </div>
+        <div class="row">
+            <div class="col col-lg-4 justify-content-start">
+                Row : @Model.Rows.ElementAt(i)
+            </div>
+            <div class="col col-lg-4 justify-content-end">
+                Seat : @Model.ChairNumber.ElementAt(i)
+            </div>
+        </div>
+    </div>
+}
+
+    <br />
+    <br />
+    <div class="container ticket">
+        <div class="row">
+            <div class="col col-lg-8 justify-content-start">
+                Dear @Model.PersonName, thanks for shopping with us!
+            </div>
+            <div class="col col-lg-2 justify-content-end">
+                You just paid: $@Model.TotalCost
+            </div>
+        </div>
+    </div>
+

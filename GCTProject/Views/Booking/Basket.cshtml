@@ -1,0 +1,44 @@
+﻿@model dynamic
+
+@{
+    ViewData["Title"] = "Basket";
+}
+
+<h1>Basket</h1>
+
+<h2>
+    Shipping: <span class="mr-auto">
+        @ViewBag.Delivery
+    </span>
+</h2>
+@if (ViewBag.tickets != null)
+{
+    <div class="container">
+        @foreach (var item in ViewBag.tickets)
+        {
+            <div class="jumbotron">
+                <h1 class="display-4">@item.PerformanceName</h1>
+                <p class="lead"><span> @item.PerformanceTime </span></p>
+                <hr class="my-4">
+                <p><span>Seat: @item.SeatNumber  </span><span> Row: @item.RowNumber </span></p>
+                <p>
+                    <span>Chair Cost: @item.Cost </span>
+                </p>
+                <a method="GET" asp-action="Delete" asp-controller="Booking" asp-route-Id="@item.Id"><span class="btn btn-danger">Delete</span></a>
+            </div>
+        }
+        <div>
+                <input asp-action="ChargeBasket" type="submit" class="btn btn-default" value="Checkout">
+                <span class="ml-5">
+                    Total Cost: @ViewBag.TotalCost
+                </span>
+        </div>
+    </div>
+}
+else
+{
+    <h2>Your basket is empty!</h2>
+}
+
+
+
