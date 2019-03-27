@@ -1,0 +1,63 @@
+﻿@model IEnumerable<Play>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="CreatePlay">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.PriceStart)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Description)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.AgeRestriction)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Picture)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.PriceStart)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Description)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.AgeRestriction)
+            </td>
+            <td>
+                <img src="@Url.Action("RenderPhoto", "Home", new { photoId = item.Id })" width="100" height="100" alt="Performance Image" />
+            </td>
+            <td>
+                <a asp-action="EditPlay" asp-route-id="@item.Id">Edit</a> |
+                <a asp-action="DetailsPlay" asp-route-id="@item.Id">Details</a> |
+                <a asp-action="DeletePlay" asp-route-id="@item.Id">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+
+<div>
+    <a asp-action="Index">Back to main page</a>
+</div>

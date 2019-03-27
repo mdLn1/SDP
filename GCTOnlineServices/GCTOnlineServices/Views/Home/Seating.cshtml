@@ -1,0 +1,512 @@
+﻿@model DisplaySeating
+
+
+@{
+    ViewData["Title"] = "Seating";
+    var date = ViewBag.Date;
+}
+
+@section AddToHead{
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+}
+@section Styles
+    {
+
+    <link rel="stylesheet" type="text/css" href="css/jquery.countdown.css">
+    <style type="text/css">
+        div.seating {
+            height: 100px;
+            background-color: burlywood;
+            border: 1px solid grey;
+        }
+
+        span.chairs {
+            width: 30px;
+            height: 30px;
+            background-color: white;
+            display: inline-block;
+            cursor: pointer;
+        }
+
+        a.nav-link {
+            display: inline;
+        }
+
+
+        div.centerSeats {
+            padding: 10px 0;
+        }
+    </style>
+}
+
+<h1>
+    Select the seats you want to reserve:
+</h1>
+<div class="row justify-content-center">
+    <div class="col col-lg-2">
+        <h3 class="text-success">Band Colors:</h3>
+    </div>
+    <div class="col col-lg-2">
+        Band A : <span class="chairs" style="background-color: burlywood;"></span>
+    </div>
+    <div class="col col-lg-2">
+        Band B : <span class="chairs" style="background-color: darksalmon;"></span>
+    </div>
+    <div class="col col-lg-2">
+        Band C : <span class="chairs" style="background-color:grey;"></span>
+    </div>
+</div>
+@if (Model.DiscountApplied)
+{
+    <div class="row justify-content-center">
+        <div class="col col-10">
+            <h3 class="text-success">Take Advantage of the discounted prices, now it's time to buy tickets!</h3>
+            <p>
+                Price Range: <span style="text-decoration:line-through">
+                    @Model.PriceBand
+                </span><span style="font-size:2em; padding:2px;" class="priceRange" value="@Model.DiscountedPrices">
+                    Discounted: @Model.DiscountedPrices
+                </span><span class="text-success">
+                    20% discounts for online bookings Monday-Thursday
+                </span>
+            </p>
+        </div>
+    </div>
+}
+else
+{
+    <div class="row justify-content-center">
+        <div class="col col-10">
+            <p class="priceRange" value="@Model.DiscountedPrices">
+                Price Range:@Model.PriceBand
+                <span class="text-success"> 20% discounts for online bookings Monday-Thursday</span>
+            </p>
+        </div>
+    </div>
+}
+@for (int i = 0; i < 3; i++)
+{
+    <div class="row justify-content-center">
+        <div class="col col-10">
+            <h3 class="text-success" id="@Model.RowNames.ElementAt(i)"
+                value="@Model.Costs.ElementAt(i)">
+                Band @Model.RowNames.ElementAt(i) Prices: @Model.Costs.ElementAt(i)
+            </h3>
+        </div>
+    </div>
+}
+<div id="update-message">
+</div>
+@using (Html.BeginForm("AddToBasket", "Home", FormMethod.Get))
+{
+    @Html.HiddenFor(m => m.SavedSeats)
+
+    <div class="container-fluid" style="border:2px solid black;">
+        <br />
+        <br />
+        <div class="row justify-content-md-center px-sm-3" style="box-sizing: border-box;">
+            <div class="col col-10" style="background-color: grey">
+                <div class="row centerSeats px-sm-3">
+                    <div class="col justify-content-center">
+                        <a href="#" class="nav-link" id="@Model.BookedSeats.ElementAt(20).Id" value="@Model.BookedSeats.ElementAt(20).Seat.SeatNumber">
+                            <span class="chairs" value="@((Model.BookedSeats.ElementAt(20).Booked == 2) ? "booked" : "notBooked")"
+                                  @if (Model.BookedSeats.ElementAt(20).Booked == 2) { <text> style="background-color:red; cursor:not-allowed;" </text> ; }>
+
+                            </span>
+
+                        </a>
+                    </div>
+                    <div class="col justify-content-center">
+                        <a href="#" class="nav-link" id="@Model.BookedSeats.ElementAt(21).Id"
+                           value="@Model.BookedSeats.ElementAt(21).Seat.SeatNumber">
+                            <span class="chairs" value="@((Model.BookedSeats.ElementAt(21).Booked == 2) ? "booked" : "notBooked")"
+                                  @if (Model.BookedSeats.ElementAt(21).Booked == 2) { <text> style="background-color:red; cursor:not-allowed;" </text> ; }>
+
+                            </span>
+                        </a>
+                    </div>
+                    <div class="col justify-content-center">
+                        <a href="#" class="nav-link" id="@Model.BookedSeats.ElementAt(22).Id" value="@Model.BookedSeats.ElementAt(22).Seat.SeatNumber">
+                            <span class="chairs" value="@((Model.BookedSeats.ElementAt(22).Booked == 2) ? "booked" : "notBooked")"
+                                  @if (Model.BookedSeats.ElementAt(22).Booked == 2) { <text> style="background-color:red; cursor:not-allowed;" </text> ; }>
+
+                            </span>
+                        </a>
+                    </div>
+                    <div class="col justify-content-center">
+                        <a href="#" class="nav-link" id="@Model.BookedSeats.ElementAt(23).Id" value="@Model.BookedSeats.ElementAt(23).Seat.SeatNumber">
+                            <span class="chairs" value="@((Model.BookedSeats.ElementAt(23).Booked == 2) ? "booked" : "notBooked")"
+                                  @if (Model.BookedSeats.ElementAt(23).Booked == 2) { <text> style="background-color:red; cursor:not-allowed;" </text> ; }>
+
+                            </span>
+                        </a>
+                    </div>
+                    <div class="col justify-content-center">
+                        <a href="#" class="nav-link" id="@Model.BookedSeats.ElementAt(24).Id" value="@Model.BookedSeats.ElementAt(24).Seat.SeatNumber">
+                            <span class="chairs" value="@((Model.BookedSeats.ElementAt(24).Booked == 2) ? "booked" : "notBooked")"
+                                  @if (Model.BookedSeats.ElementAt(24).Booked == 2) { <text> style="background-color:red; cursor:not-allowed;" </text> ; }>
+
+                            </span>
+                        </a>
+                    </div>
+                    <div class="col justify-content-center">
+                        <a href="#" class="nav-link" id="@Model.BookedSeats.ElementAt(25).Id" value="@Model.BookedSeats.ElementAt(25).Seat.SeatNumber">
+                            <span class="chairs" value="@((Model.BookedSeats.ElementAt(25).Booked == 2) ? "booked" : "notBooked")"
+                                  @if (Model.BookedSeats.ElementAt(25).Booked == 2) { <text> style="background-color:red; cursor:not-allowed;" </text> ; }>
+
+                            </span>
+                        </a>
+                    </div>
+                    <div class="col justify-content-center">
+                        <a href="#" class="nav-link" id="@Model.BookedSeats.ElementAt(26).Id" value="@Model.BookedSeats.ElementAt(26).Seat.SeatNumber">
+                            <span class="chairs" value="@((Model.BookedSeats.ElementAt(26).Booked == 2) ? "booked" : "notBooked")"
+                                  @if (Model.BookedSeats.ElementAt(26).Booked == 2) { <text> style="background-color:red; cursor:not-allowed;" </text> ; }>
+
+                            </span>
+                        </a>
+                    </div>
+                    <div class="col justify-content-center">
+                        <a href="#" class="nav-link" id="@Model.BookedSeats.ElementAt(27).Id" value="@Model.BookedSeats.ElementAt(27).Seat.SeatNumber">
+                            <span class="chairs" value="@((Model.BookedSeats.ElementAt(27).Booked == 2) ? "booked" : "notBooked")"
+                                  @if (Model.BookedSeats.ElementAt(27).Booked == 2) { <text> style="background-color:red; cursor:not-allowed;" </text> ; }>
+
+                            </span>
+                        </a>
+                    </div>
+                </div>
+                <div class="row centerSeats px-sm-3" style="background-color: grey">
+                    <div class="col col-2 justify-content-center">
+                        <a href="#" class="nav-link" id="@Model.BookedSeats.ElementAt(18).Id" value="@Model.BookedSeats.ElementAt(18).Seat.SeatNumber">
+                            <span class="chairs" value="@((Model.BookedSeats.ElementAt(18).Booked == 2) ? "booked" : "notBooked")"
+                                  @if (Model.BookedSeats.ElementAt(18).Booked == 2) { <text> style="background-color:red; cursor:not-allowed;" </text> ; }>
+
+                            </span>
+                        </a>
+                    </div>
+                    <div class="col col-3"></div>
+                    <div class="col col-1 justify-content-end" style="background-color: darksalmon">
+                        <a href="#" class="nav-link" id="@Model.BookedSeats.ElementAt(16).Id" value="@Model.BookedSeats.ElementAt(16).Seat.SeatNumber">
+                            <span class="chairs" value="@((Model.BookedSeats.ElementAt(16).Booked == 2) ? "booked" : "notBooked")"
+                                  @if (Model.BookedSeats.ElementAt(16).Booked == 2) { <text> style="background-color:red; cursor:not-allowed;" </text> ; }>
+
+                            </span>
+                        </a>
+                    </div>
+                    <div class="col col-1 justify-content-start" style="background-color: darksalmon">
+                        <a href="#" class="nav-link" id="@Model.BookedSeats.ElementAt(17).Id" value="@Model.BookedSeats.ElementAt(17).Seat.SeatNumber">
+                            <span class="chairs" value="@((Model.BookedSeats.ElementAt(17).Booked == 2) ? "booked" : "notBooked")"
+                                  @if (Model.BookedSeats.ElementAt(17).Booked == 2) { <text> style="background-color:red; cursor:not-allowed;" </text> ; }>
+
+                            </span>
+                        </a>
+                    </div>
+                    <div class="col col-3"></div>
+                    <div class="col col-2 ml-auto">
+                        <a href="#" class="nav-link" id="@Model.BookedSeats.ElementAt(19).Id" value="@Model.BookedSeats.ElementAt(19).Seat.SeatNumber">
+                            <span class="chairs" value="@((Model.BookedSeats.ElementAt(19).Booked == 2) ? "booked" : "notBooked")"
+                                  @if (Model.BookedSeats.ElementAt(19).Booked == 2) { <text> style="background-color:red; cursor:not-allowed;" </text> ; }>
+
+                            </span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <br />
+        <br />
+        <div class="row justify-content-md-center px-sm-3">
+            <div class="col col-10 seating">
+                <div class="row justify-content-md-center centerSeats px-sm-3">
+                    <div class="col col-4" style="background-color: darksalmon">
+                        <div class="row px-sm-3 centerSeats" style="border:2px solid black;">
+                            <div class="col-sm justify-content-center">
+                                <a href="#" class="nav-link" id="@Model.BookedSeats.ElementAt(12).Id" value="@Model.BookedSeats.ElementAt(12).Seat.SeatNumber">
+                                    <span class="chairs" value="@((Model.BookedSeats.ElementAt(12).Booked == 2) ? "booked" : "notBooked")"
+                                          @if (Model.BookedSeats.ElementAt(12).Booked == 2) { <text> style="background-color:red; cursor:not-allowed;" </text> ; }>
+
+                                    </span>
+                                </a>
+                            </div>
+                            <div class="col-sm justify-content-center">
+                                <a href="#" class="nav-link" id="@Model.BookedSeats.ElementAt(13).Id" value="@Model.BookedSeats.ElementAt(13).Seat.SeatNumber">
+                                    <span class="chairs" value="@((Model.BookedSeats.ElementAt(13).Booked == 2) ? "booked" : "notBooked")"
+                                          @if (Model.BookedSeats.ElementAt(13).Booked == 2) { <text> style="background-color:red; cursor:not-allowed;" </text> ; }>
+
+                                    </span>
+                                </a>
+                            </div>
+                            <div class="col-sm justify-content-center">
+                                <a href="#" class="nav-link" id="@Model.BookedSeats.ElementAt(14).Id" value="@Model.BookedSeats.ElementAt(14).Seat.SeatNumber">
+                                    <span class="chairs" value="@((Model.BookedSeats.ElementAt(14).Booked == 2) ? "booked" : "notBooked")"
+                                          @if (Model.BookedSeats.ElementAt(14).Booked == 2) { <text> style="background-color:red; cursor:not-allowed;" </text> ; }>
+
+                                    </span>
+                                </a>
+                            </div>
+                            <div class="col-sm justify-content-center">
+                                <a href="#" class="nav-link" id="@Model.BookedSeats.ElementAt(15).Id" value="@Model.BookedSeats.ElementAt(15).Seat.SeatNumber">
+                                    <span class="chairs" value="@((Model.BookedSeats.ElementAt(15).Booked == 2) ? "booked" : "notBooked")"
+                                          @if (Model.BookedSeats.ElementAt(15).Booked == 2) { <text> style="background-color:red; cursor:not-allowed;" </text> ; }>
+
+                                    </span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br />
+        <br />
+        <div class="row justify-content-md-center centerSeats px-sm-3">
+            <div class="col col-4 seating">
+                <div class="row px-sm-3 centerSeats">
+                    <div class="col-sm justify-content-center">
+                        <a href="#" class="nav-link" id="@Model.BookedSeats.ElementAt(6).Id" value="@Model.BookedSeats.ElementAt(6).Seat.SeatNumber">
+                            <span class="chairs" value="@((Model.BookedSeats.ElementAt(6).Booked == 2) ? "booked" : "notBooked")"
+                                  @if (Model.BookedSeats.ElementAt(6).Booked == 2) { <text> style="background-color:red; cursor:not-allowed;" </text> ; }>
+
+                            </span>
+                        </a>
+                    </div>
+                    <div class="col-sm justify-content-center">
+                        <a href="#" class="nav-link" id="@Model.BookedSeats.ElementAt(7).Id" value="@Model.BookedSeats.ElementAt(7).Seat.SeatNumber">
+                            <span class="chairs" value="@((Model.BookedSeats.ElementAt(7).Booked == 2) ? "booked" : "notBooked")"
+                                  @if (Model.BookedSeats.ElementAt(7).Booked == 2) { <text> style="background-color:red; cursor:not-allowed;" </text> ; }>
+
+                            </span>
+                        </a>
+                    </div>
+                    <div class="col-sm justify-content-center">
+                        <a href="#" class="nav-link" id="@Model.BookedSeats.ElementAt(8).Id" value="@Model.BookedSeats.ElementAt(8).Seat.SeatNumber">
+                            <span class="chairs" value="@((Model.BookedSeats.ElementAt(8).Booked == 2) ? "booked" : "notBooked")"
+                                  @if (Model.BookedSeats.ElementAt(8).Booked == 2) { <text> style="background-color:red; cursor:not-allowed;" </text> ; }>
+
+                            </span>
+                        </a>
+                    </div>
+                </div>
+                <div class="row px-sm-3">
+                    <div class="col-sm justify-content-center">
+                        <a href="#" class="nav-link" id="@Model.BookedSeats.ElementAt(0).Id" value="@Model.BookedSeats.ElementAt(0).Seat.SeatNumber">
+                            <span class="chairs" value="@((Model.BookedSeats.ElementAt(0).Booked == 2) ? "booked" : "notBooked")"
+                                  @if (Model.BookedSeats.ElementAt(0).Booked == 2) { <text> style="background-color:red; cursor:not-allowed;" </text> ; }>
+
+                            </span>
+                        </a>
+                    </div>
+                    <div class="col-sm justify-content-center">
+                        <a href="#" class="nav-link" id="@Model.BookedSeats.ElementAt(1).Id" value="@Model.BookedSeats.ElementAt(1).Seat.SeatNumber">
+                            <span class="chairs" value="@((Model.BookedSeats.ElementAt(1).Booked == 2) ? "booked" : "notBooked")"
+                                  @if (Model.BookedSeats.ElementAt(1).Booked == 2) { <text> style="background-color:red; cursor:not-allowed;" </text> ; }>
+
+                            </span>
+                        </a>
+                    </div>
+                    <div class="col-sm justify-content-center">
+                        <a href="#" class="nav-link" id="@Model.BookedSeats.ElementAt(2).Id" value="@Model.BookedSeats.ElementAt(2).Seat.SeatNumber">
+                            <span class="chairs" value="@((Model.BookedSeats.ElementAt(2).Booked == 2) ? "booked" : "notBooked")"
+                                  @if (Model.BookedSeats.ElementAt(2).Booked == 2) { <text> style="background-color:red; cursor:not-allowed;" </text> ; }>
+
+                            </span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col col-2" style="background-color:white;">
+
+            </div>
+            <div class="col col-4 seating">
+                <div class="row px-sm-3 centerSeats">
+                    <div class="col-sm justify-content-center">
+                        <a href="#" class="nav-link" id="@Model.BookedSeats.ElementAt(9).Id" value="@Model.BookedSeats.ElementAt(9).Seat.SeatNumber">
+                            <span class="chairs" value="@((Model.BookedSeats.ElementAt(9).Booked == 2) ? "booked" : "notBooked")"
+                                  @if (Model.BookedSeats.ElementAt(9).Booked == 2) { <text> style="background-color:red; cursor:not-allowed;" </text> ; }>
+
+                            </span>
+                        </a>
+                    </div>
+                    <div class="col-sm justify-content-center">
+                        <a href="#" class="nav-link" id="@Model.BookedSeats.ElementAt(10).Id" value="@Model.BookedSeats.ElementAt(10).Seat.SeatNumber">
+                            <span class="chairs" value="@((Model.BookedSeats.ElementAt(10).Booked == 2) ? "booked" : "notBooked")"
+                                  @if (Model.BookedSeats.ElementAt(10).Booked == 2) { <text> style="background-color:red; cursor:not-allowed;" </text> ; }>
+
+                            </span>
+                        </a>
+                    </div>
+                    <div class="col-sm justify-content-center">
+                        <a href="#" class="nav-link" id="@Model.BookedSeats.ElementAt(11).Id" value="@Model.BookedSeats.ElementAt(11).Seat.SeatNumber">
+                            <span class="chairs" value="@((Model.BookedSeats.ElementAt(11).Booked == 2) ? "booked" : "notBooked")"
+                                  @if (Model.BookedSeats.ElementAt(11).Booked == 2) { <text> style="background-color:red; cursor:not-allowed;" </text> ; }>
+
+                            </span>
+                        </a>
+                    </div>
+                </div>
+                <div class="row px-sm-3">
+                    <div class="col-sm justify-content-center">
+                        <a href="#" class="nav-link" id="@Model.BookedSeats.ElementAt(3).Id" value="@Model.BookedSeats.ElementAt(3).Seat.SeatNumber">
+                            <span class="chairs" value="@((Model.BookedSeats.ElementAt(3).Booked == 2) ? "booked" : "notBooked")"
+                                  @if (Model.BookedSeats.ElementAt(3).Booked == 2) { <text> style="background-color:red; cursor:not-allowed;" </text> ; }>
+
+                            </span>
+                        </a>
+                    </div>
+                    <div class="col-sm justify-content-center">
+                        <a href="#" class="nav-link" id="@Model.BookedSeats.ElementAt(4).Id" value="@Model.BookedSeats.ElementAt(4).Seat.SeatNumber">
+                            <span class="chairs" value="@((Model.BookedSeats.ElementAt(4).Booked == 2) ? "booked" : "notBooked")"
+                                  @if (Model.BookedSeats.ElementAt(4).Booked == 2) { <text> style="background-color:red; cursor:not-allowed;" </text> ; }>
+
+                            </span>
+                        </a>
+                    </div>
+                    <div class="col-sm justify-content-center">
+                        <a href="#" class="nav-link" id="@Model.BookedSeats.ElementAt(5).Id" value="@Model.BookedSeats.ElementAt(5).Seat.SeatNumber">
+                            <span class="chairs" value="@((Model.BookedSeats.ElementAt(5).Booked == 2) ? "booked" : "notBooked")"
+                                  @if (Model.BookedSeats.ElementAt(5).Booked == 2) { <text> style="background-color:red; cursor:not-allowed;" </text> ; }>
+
+                            </span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br />
+        <br />
+        <div class="row justify-content-center">
+            <div class="col-md-8 text-center" style="border:4px solid black;">
+                Stage
+            </div>
+        </div>
+
+        <br />
+        <br />
+    </div>
+    <div class="form-control text-success">
+        <p id="freeSeats">
+
+        </p>
+    </div>
+    <div class="form-group">
+        <input name="total" id="totalMoney2" value="0" disabled />
+        @Html.HiddenFor(model => model.Total)
+    </div>
+
+    <div class="form-group">
+        <input type="submit" value="Add To Basket" class="btn btn-primary" />
+    </div>
+}
+
+<p id="test"></p>
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        $("span.chairs").mouseover(function () {
+            var chair = $(this).attr("value");
+            if (chair == "notBooked") {
+                $(this).css("background-color", "lawngreen");
+            }
+        });
+        $("span.chairs").mouseout(function () {
+            var chair = $(this).attr("value");
+            if (chair == "notBooked") {
+                $(this).css("background-color", "white");
+            }
+        });
+        $("button#addBasket").click(function () {
+            var savedSeats = $("#SavedSeats").attr("value");
+            $.ajax({
+                url: '/Home/AddToBasket/?' + 'savedSeats=' + savedSeats,
+                type: 'POST',
+                success: function (html) {
+                    if (html == "Ok") {
+                        window.location.href = "/Home/Basket";
+                    }
+                },
+                error: function (error) {
+                    $(that).remove();
+                    DisplayError(error.statusText);
+                }
+            });
+        });
+        var chairChosen = "";
+        $(".nav-link").click(function () {
+            chairChosen = $(this).attr("id");
+            var chairSeatNumber = $(this).attr("value");
+            var totalCost = $("#totalMoney2").attr("value");
+            var row = "";
+            var num = Number(chairSeatNumber);
+            if ((num + 1) < 14 && (num + 1) > 0) {
+                row = "A";
+            } else if ((num + 1) < 20) {
+                row = "B";
+            } else if ((num + 1) < 29) {
+                row = "C";
+            } else {
+                row = "B";
+            }
+            var ticketCost = Number($("#" + row).attr("value")).toFixed(2);
+            var valueChair = $(this).children().first().attr("value");
+            console.log("before check not booked");
+            if (valueChair == "notBooked") {
+                $.ajax({
+                    url: '/Home/ReserveSeat/?id=' + chairChosen + '&price=' + ticketCost,
+                    type: 'GET',
+                    success: function (html) {
+                        $("a.nav-link#" + chairChosen).click(function (e) {
+                            e.preventDefault();
+                        });
+                        console.log("in ajax response");
+                        var savedSeats = $("#SavedSeats").attr("value");
+                        $("#totalMoney2").attr("value", (Number(totalCost) + Number(ticketCost)).toFixed(2));
+                        $("#Total").val((Number(totalCost) + Number(ticketCost)).toFixed(2));
+                        $("#SavedSeats").val(savedSeats + chairChosen + " ");
+                        $(".nav-link#" + chairChosen).children().first().css({ "background-color": "blue" });
+                        $(".nav-link#" + chairChosen).children().first().attr("value", "saved");
+                    },
+                    error: function (error) {
+                        $(that).remove();
+                        DisplayError(error.statusText);
+                        console.log("in ajax error");
+                    }
+                });
+            } else if (valueChair == "booked") {
+                window.alert("The seat you selected is already taken");
+                console.log("in chair bookede");
+            } else {
+                var savedAlready = $("#SavedSeats").attr("value");
+                $.ajax({
+                    url: '/Home/ReserveSeat/?id=' + chairChosen + '&price=' + ticketCost,
+                    type: 'GET',
+                    success: function (html) {
+                        $("a.nav-link#" + chairChosen).click(function (e) {
+                            e.preventDefault();
+                        });
+                    },
+                    error: function (error) {
+                        $(that).remove();
+                        DisplayError(error.statusText);
+                    }
+                });
+                var pos = savedAlready.indexOf(chairChosen);
+                if (pos != -1) {
+                    savedAlready = savedAlready.replace(chairChosen + " ", "");
+                }
+                $("#SavedSeats").val(savedAlready);
+                $("#totalMoney2").attr("value", (Number(totalCost) - Number(ticketCost)).toFixed(2));
+                $("#Total").val((Number(totalCost) - Number(ticketCost)).toFixed(2));
+                $(".nav-link#" + chairChosen).children().first().css({ "background-color": "white" }).attr("value", "notBooked");
+            }
+            console.log("end of function");
+        });
+
+    });
+
+
+</script>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+

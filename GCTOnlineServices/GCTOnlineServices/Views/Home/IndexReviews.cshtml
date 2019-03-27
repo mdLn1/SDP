@@ -1,0 +1,118 @@
+﻿@model IEnumerable<Review>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+
+
+<h1>Reviews</h1>
+<br />
+<div class="row">
+    <div class="col-form-label text-dark">
+        <h3>Title: </h3>
+    </div>
+    <div class="col-form-label text-dark">
+        <h3>@ViewData["PerformanceName"]</h3>
+    </div>
+</div>
+<div class="row">
+    <div class="col-form-label text-dark">
+        <h5>Description: </h5>
+    </div>
+    <div class="col-form-label text-dark">
+        <h5>@ViewData["PerformanceDescription"]</h5>
+    </div>
+</div>
+
+
+@if (!SignInManager.IsSignedIn(User))
+{
+    <div class="row">
+        <div class="col-form-label">
+            You need to be logged in to add a review.
+        </div>
+    </div>
+    <div>
+        <p>
+            <a asp-action="Login" asp-controller="Account">Log In Here</a>
+        </p>
+    </div>
+}
+else
+{
+    <p>
+        <a asp-action="CreateReview" asp-route-Id="@ViewData["PerformanceId"]">Create New</a>
+    </p>
+}
+@if (!Model.Any())
+{
+    <div class="row">
+        <div class="col-form-label">
+            Oops! It's a little empty here, if you watched the performance please add a review.
+        </div>
+    </div>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.User.UserName)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Comment)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Date)
+                </th>
+                <th>
+
+                </th>
+                <th>
+
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.User.UserName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Comment)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Date)
+                    </td>
+                    @*<td>
+                        @Html.HiddenFor(modelItem => item.Performance.Id)
+                    </td>
+                    <td>
+                        @Html.HiddenFor(modelItem => item.User.Id)
+                    </td>*@
+
+                    <td>
+                        @if (User.IsInRole("SalesStaff") || User.IsInRole("Admin") || User.IsInRole("Manager")
+                             || User.Identity.Name == item.UserName)
+                        {
+                            <a class="card-link" asp-controller="Home" asp-action="EditReview"
+                                 asp-route-id="@item.Id" title="Edit Comment">Edit</a>
+                            <span> | </span>
+                            <a class="card-link" asp-controller="Home" asp-action="DetailsReview"
+                                 asp-route-id="@item.Id" title="Details Comment">Details</a>
+                            <span> | </span>
+                            <a class="card-link" asp-controller="Home" asp-action="DeleteReview"
+                                 asp-route-id="@item.Id" title="Delete Comment">Remove comment</a>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+}

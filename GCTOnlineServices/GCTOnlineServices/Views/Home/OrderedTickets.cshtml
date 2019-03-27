@@ -1,0 +1,31 @@
+﻿@model IEnumerable<SoldTicket>
+
+@{
+    ViewData["Title"] = "OrderedTickets";
+}
+
+<h1>Ordered Tickets</h1>
+
+@foreach (var item in Model)
+{
+    <div class="jumbotron">
+        <h1 class="display-4">
+            <span class="font-weight-bold">Play :</span> @Html.DisplayFor(modelItem => item.PlayName)
+            <br />   <span class="font-weight-bold">Date :</span>
+            @Html.DisplayFor(modelItem => item.PerformanceTimeAndDate).
+        </h1>
+        <p class="lead"><span>Customer : @Html.DisplayFor(modelItem => item.CustomerName)</span></p>
+        <hr class="my-4">
+        <p>
+            <span  class="font-weight-bold">Row Number :  </span> @Html.DisplayFor(modelItem => item.RowNumber) <br />
+            <span  class="font-weight-bold">Seat Letter : </span> @Html.DisplayFor(modelItem => item.ColumnLetter)
+        </p>
+        <p>
+            <span>Price:@Html.DisplayFor(modelItem => item.PaidPrice)</span>
+        </p>
+    </div>
+}
+
+    <div>
+        <a asp-action="IndexOrders">Back to Orders</a>
+    </div>

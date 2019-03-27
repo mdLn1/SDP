@@ -1,0 +1,92 @@
+﻿@model ViewBasket
+@using Microsoft.Extensions.Options
+@inject IOptions<StripeSettings> Stripe
+
+@{
+    ViewData["Title"] = "Basket";
+}
+
+<h1>Basket</h1>
+
+@if (@Model.tickets.Count > 0)
+{
+<div class="container">
+    <form asp-action="ChargeBasket" asp-controller="Home" method="post">
+
+        <div class="form-group">
+            <label class="control-label">Shipping :</label>
+            <p>
+                <select name="DeliverySelected">
+                    @foreach (var delivery in Model.DeliveryMethod)
+                    {
+                        <option value="@delivery">@delivery</option>
+                    }
+                </select>
+            </p>
+        </div>
+        <br />
+        @foreach (var item in Model.tickets)
+        {
+            <div class="jumbotron">
+                <h1 class="display-4">@item.PerformanceName</h1>
+                <p class="lead"><span> @item.PerformanceTime </span></p>
+                <hr class="my-4">
+                <p><span>Seat: @item.SeatLetter  </span><span> Row: @item.RowNumber </span></p>
+                <p>
+                    <span>Chair Cost: @item.Price </span>
+                </p>
+                <a method="GET" asp-action="DeleteTicket" asp-controller="Home" asp-route-Id="@item.Id"><span class="btn btn-danger">Delete</span></a>
+            </div>
+        }
+        <div class="form-group">
+            <label>Total Cost: @Model.Total <span>&#163;</span></label>
+        </div>
+
+        <div class="form-group">
+            <input type="submit" value="Checkout" class="btn btn-primary" />
+        </div>
+    </form>
+
+
+    <div class="form-group">
+
+        @if (SignInManager.IsSignedIn(User))
+        {
+
+            @if (User.IsInRole("Customer") || User.IsInRole("AgencyOrClub"))
+            {
+                <div class="form-control">
+                    <span>Remember my details </span> @Html.CheckBoxFor(model => model.RememberMe)
+                </div>
+
+            }
+
+
+            @if (!User.IsInRole("Customer") && !User.IsInRole("AgencyOrClub"))
+            {
+                <div class="form-group" id="custName">
+                    <label> Customer Name: </label>
+                    <input name="CustomerName" placeholder="Please Enter Customer Full Name here" class="form-control" />
+                </div>
+
+                }
+
+            }
+        </div>
+
+    <script src="//checkout.stripe.com/v2/checkout.js"
+            class="stripe-button"
+            data-key="@Stripe.Value.PublishableKey"
+            data-locale="auto"
+            data-description="GCT Theatre"
+            data-allow-remember-me="false">
+    </script>
+</div>
+}
+else
+{
+    <h2>Your basket is empty!</h2>
+}
+
+
+

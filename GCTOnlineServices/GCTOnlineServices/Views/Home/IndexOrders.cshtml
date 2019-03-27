@@ -1,0 +1,50 @@
+﻿@model  IEnumerable<Order>
+
+
+@{
+    ViewData["Title"] = "IndexOrders";
+}
+
+<h1>Your Orders</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Id)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.OrderTime)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.DeliveryMethod)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PlayName)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Id)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.OrderTime)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.DeliveryMethod)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PlayName)
+            </td>
+            <td>
+                <a asp-action="OrderedTickets" asp-route-id="@item.Id">Order details</a>
+            </td>
+        </tr>
+        }
+    </tbody>
+</table>

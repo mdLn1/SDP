@@ -1,0 +1,145 @@
+﻿@model TheatrePlay
+
+
+@{
+    ViewData["Title"] = "Buy";
+}
+
+
+
+
+<h1>Select Date</h1>
+<hr />
+<div class="container-fluid justify-content-center">
+    <h1>Title: @Html.DisplayFor(model => model.Name)</h1>
+    <br />
+    <img class="img-thumbnail" src="@Url.Action("RenderPhoto", "Home", new { photoId = Model.Id })" alt="Card image cap" />
+
+    <form method="get" asp-controller="Home" asp-action="Seating" asp-route-id="@Model.Id">
+        <div class="row">
+            <div class="col-md-6">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="form-group">
+                    <label class="control-label">
+                        Description: @Model.Description
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Select one of the available dates: </label>
+                    <p>
+                        <select name="DateSelected">
+                            @foreach (var date in Model.Performances)
+                            {
+                                <option value="@date.Date">@date.Date</option>
+                            }
+                        </select>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col col-10">
+
+                <p>
+                    Price Range:<span> @Model.PriceStart - @Model.PriceEnd </span><span class="text-success">
+                        20% discounts for online bookings Monday-Thursday
+                    </span>
+                </p>
+            </div>
+        </div>
+        <div class="form-group">
+            <input type="submit" value="Choose a Seat" class="btn btn-primary" />
+        </div>
+    </form>
+    <div>
+        <a asp-action="Index" asp-controller="Home">Back to List</a>
+    </div>
+
+
+
+    <h1>Reviews</h1>
+
+    @if (!SignInManager.IsSignedIn(User))
+    {
+        <div class="row">
+            <div class="col-form-label">
+                You need to be logged in to add a review.
+            </div>
+        </div>
+        <div>
+            <p>
+                <a asp-action="Login" asp-controller="Account">Log In Here</a>
+            </p>
+        </div>
+    }
+    else
+    {
+        <p>
+            <a asp-action="CreateReview" asp-route-Id="@ViewData["PerformanceId"]">Create New</a>
+        </p>
+    }
+    @if (!Model.Reviews.Any())
+    {
+        <div class="row">
+            <div class="col-form-label">
+                Oops! It's a little empty here, if you watched the performance please add a review.
+            </div>
+        </div>
+    }
+    else
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>
+                        Username
+                    </th>
+                    <th>
+                        Comment
+                    </th>
+                    <th>
+                        Posted
+                    </th>
+                    <th>
+
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Reviews)
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.UserName)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Comment)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Date)
+                        </td>
+
+                        <td>
+                            @if (User.IsInRole("SalesStaff") || User.IsInRole("Admin") || User.IsInRole("Manager")
+            || User.Identity.Name == item.UserName)
+                            {
+                                <a class="card-link" asp-controller="Home" asp-action="EditReview"
+                                   asp-route-id="@item.Id" title="Edit Comment">Edit</a>
+                                <span> | </span>
+                                <a class="card-link" asp-controller="Home" asp-action="DetailsReview"
+                                   asp-route-id="@item.Id" title="Details Comment">Details</a>
+                                <span> | </span>
+                                <a class="card-link" asp-controller="Home" asp-action="DeleteReview"
+                                   asp-route-id="@item.Id" title="Delete Comment">Remove comment</a>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+
+
+
+</div>

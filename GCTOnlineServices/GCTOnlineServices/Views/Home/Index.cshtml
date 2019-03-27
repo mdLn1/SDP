@@ -1,0 +1,78 @@
+﻿
+@using Microsoft.Extensions.Options
+@model IEnumerable<Play>
+
+@{
+    ViewData["Title"] = "Home Page";
+    int index = (int)ViewData["Index"];
+    int noOfPerf = (int)ViewData["NumberOfPerformances"];
+}
+@section Styles
+    {
+    <style type="text/css">
+        div.card-link {
+            font-size: 2vw;
+        }
+
+        div.card {
+            display: inline-block;
+        }
+    </style>
+}
+
+
+
+
+    <div class="card-columns">
+        @for (int j = 0; j < noOfPerf; j++)
+        {
+            <div class="card" style="box-shadow: 10px 10px 5px grey;">
+                <img class="card-img-top img-fluid" style="padding:1vw;"
+                     src="@Url.Action("RenderPhoto", "Home", new { photoId = Model.ElementAt(j).Id })" alt="Card image cap">
+                <div class="card-body">
+                    <h5 class="card-title">Title: @Html.DisplayFor(model => model.ElementAt(j).Name)</h5>
+                    <p class="card-text">
+                        <span class="font-weight-bold"> Description: </span>  @Html.DisplayFor(model => model.ElementAt(j).Description)
+                    </p>
+                </div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                        Price Range:
+                        @Html.DisplayFor(model => model.ElementAt(j).PriceStart)<span>&#163;</span> - @Html.DisplayFor(model => model.ElementAt(j).PriceEnd)<span>&#163;</span>         
+                    </li>
+                    <li class="list-group-item">Age Restriction: @Html.DisplayFor(model => model.ElementAt(j).AgeRestriction)</li>
+                </ul>
+                <div class="card-footer text-center">
+                     @if (SignInManager.IsSignedIn(User))
+                    {
+
+                        @if (User.IsInRole("SalesStaff"))
+                        {
+                            <a class="card-link" asp-controller="Home" asp-action="SelectDate" asp-route-id="@Model.ElementAt(j).Id" title="Book Tickets">Book Tickets</a>
+                        }
+                        else
+                        {
+                            <a class="card-link" asp-controller="Home" asp-action="SelectDate" asp-route-id="@Model.ElementAt(j).Id" title="Buy Tickets">Buy Tickets</a>
+
+                        }
+
+                    }
+                    else
+                    {
+                        <a class="card-link" asp-controller="Account" asp-action="Login" title="Login">Login To Buy Tickets</a>
+                    }
+
+                </div>
+            </div>
+        }
+    </div>
+        <script language="javascript" type="text/javascript">
+
+            $(document).ready(function () {
+
+                $("button").click(function () {
+                    if ($("span").text().toString() != "Added");
+                    $("span").text("Added");
+                });
+            });
+        </script>
