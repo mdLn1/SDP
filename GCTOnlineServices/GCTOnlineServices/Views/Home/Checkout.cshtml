@@ -1,0 +1,54 @@
+﻿@model TicketAndReceipt
+
+@{
+    ViewData["Title"] = "BuyNow";
+}
+
+<div class="container">
+    <div class="alert alert-success">
+        <strong>Success!</strong> You succesfully bought @Model.Tickets.Count() tickets!
+    </div>
+    <div class="alert alert-success">
+        Dear <strong>@Model.PersonName</strong>, thanks for shopping with us!
+    </div>
+    <div class="alert alert-success">
+        You just paid: @Model.TotalCost
+        @if (Model.DiscountApplied)
+        {
+            <strong>Today you saved @Model.Saved</strong>
+        }
+    </div>
+
+    @if (SignInManager.IsSignedIn(User))
+    {
+        @if (User.IsInRole("SalesStaff") || User.IsInRole("Manager"))
+        {
+            <a asp-action="PrintTickets" asp-route-id="@Model.OrderId"
+                   class="btn btn-primary active">
+                Print
+            </a>
+        }
+    }
+
+</div>
+<div class="container">
+
+    @for (int i = 0; i < Model.Tickets.Count(); i++)
+    {
+        <div class="jumbotron">
+            <h1 class="display-4">
+                <span class="font-weight-bold">Play :</span> @Model.Tickets.ElementAt(i).PerformanceName
+                <br />   <span class="font-weight-bold">Date :</span> @Model.Tickets.ElementAt(i).PerformanceTime
+            </h1>
+            <p class="lead"><span>Customer : @Model.PersonName</span></p>
+            <hr class="my-4">
+            <p>
+                <span class="font-weight-bold">Row Number : </span> @Model.Tickets.ElementAt(i).RowNumber <br />
+                <span class="font-weight-bold">Seat Letter :</span> @Model.Tickets.ElementAt(i).SeatLetter
+            </p>
+            <p>
+                <span>Price: @Model.Tickets.ElementAt(i).Price </span>
+            </p>
+        </div>
+    }
+</div>

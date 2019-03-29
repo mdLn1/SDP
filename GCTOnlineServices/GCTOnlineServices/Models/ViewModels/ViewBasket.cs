@@ -9,8 +9,11 @@ namespace GCTOnlineServices.Models.ViewModels
     {
         public List<TicketsInBasket> tickets { get; set; }
         public List<string> DeliveryMethod { get; set; }
+        public string SelectedDelivery { get; set; }
         public decimal Total { get; set; }
         public bool RememberMe { get; set; }
         public string CustomerName { get; set; }
+        public bool? ApprovedDiscounts { get; set; }
+        public string SavedCard { get; set; }
     }
 }

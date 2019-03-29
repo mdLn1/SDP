@@ -2941,6 +2941,18 @@
           "lib/netstandard1.0/Remotion.Linq.dll": {}
         }
       },
+      "Rotativa.AspNetCore/1.1.1": {
+        "type": "package",
+        "dependencies": {
+          "Microsoft.AspNetCore.Mvc": "2.0.1"
+        },
+        "compile": {
+          "lib/netstandard2.0/Rotativa.AspNetCore.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard2.0/Rotativa.AspNetCore.dll": {}
+        }
+      },
       "runtime.debian.8-x64.runtime.native.System.Security.Cryptography.OpenSsl/4.3.0": {
         "type": "package",
         "runtimeTargets": {
@@ -8190,6 +8202,18 @@
         "remotion.linq.nuspec"
       ]
     },
+    "Rotativa.AspNetCore/1.1.1": {
+      "sha512": "8G2uvsUCWhqVON2EBp01zzcHRG9btkkO1u5B5byalSyyxgCL0iUpz5mYq5+HUQFIJ5DWEfSBx5vwVQSvx6L6DQ==",
+      "type": "package",
+      "path": "rotativa.aspnetcore/1.1.1",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "lib/netstandard2.0/Rotativa.AspNetCore.dll",
+        "rotativa.aspnetcore.1.1.1.nupkg.sha512",
+        "rotativa.aspnetcore.nuspec"
+      ]
+    },
     "runtime.debian.8-x64.runtime.native.System.Security.Cryptography.OpenSsl/4.3.0": {
       "sha512": "1B8WYHEnoEsk+jequX7it5xvb+5bPHapIfByhnAenfVEYH2wzd1suvy9wOB47jaEr1FVYQAlNZoBY9i6PtGZYQ==",
       "type": "package",
@@ -13027,6 +13051,7 @@
       "Microsoft.EntityFrameworkCore.Tools >= 2.2.3",
       "Microsoft.NETCore.App >= 2.2.0",
       "Microsoft.VisualStudio.Web.CodeGeneration.Design >= 2.2.3",
+      "Rotativa.AspNetCore >= 1.1.1",
       "Stripe.net >= 25.1.0"
     ]
   },
@@ -13037,11 +13062,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\GCTOnlineServices\\GCTOnlineServices\\GCTOnlineServices.csproj",
+      "projectUniqueName": "D:\\repo\\GCTOnlineServices\\GCTOnlineServices\\GCTOnlineServices.csproj",
       "projectName": "GCTOnlineServices",
-      "projectPath": "D:\\GCTOnlineServices\\GCTOnlineServices\\GCTOnlineServices.csproj",
+      "projectPath": "D:\\repo\\GCTOnlineServices\\GCTOnlineServices\\GCTOnlineServices.csproj",
       "packagesPath": "C:\\Users\\acer\\.nuget\\packages\\",
-      "outputPath": "D:\\GCTOnlineServices\\GCTOnlineServices\\obj\\",
+      "outputPath": "D:\\repo\\GCTOnlineServices\\GCTOnlineServices\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
@@ -13101,6 +13126,10 @@
           "Microsoft.VisualStudio.Web.CodeGeneration.Design": {
             "target": "Package",
             "version": "[2.2.3, )"
+          },
+          "Rotativa.AspNetCore": {
+            "target": "Package",
+            "version": "[1.1.1, )"
           },
           "Stripe.net": {
             "target": "Package",

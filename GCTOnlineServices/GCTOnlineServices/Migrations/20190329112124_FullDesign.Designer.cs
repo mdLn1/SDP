@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GCTOnlineServices.Migrations
 {
     [DbContext(typeof(GCTContext))]
-    [Migration("20190325152406_PlayAndPerformance")]
-    partial class PlayAndPerformance
+    [Migration("20190329112124_FullDesign")]
+    partial class FullDesign
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -31,6 +31,8 @@ namespace GCTOnlineServices.Migrations
                     b.Property<string>("Address");
 
                     b.Property<string>("AgencyOrClubName");
+
+                    b.Property<bool?>("ApprovedMultipleDiscounts");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken();
@@ -105,23 +107,21 @@ namespace GCTOnlineServices.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<string>("BasketId");
+
                     b.Property<int>("BookedSeatId");
 
                     b.Property<int>("PerformanceId");
 
                     b.Property<decimal>("Price");
 
-                    b.Property<string>("UserId");
-
                     b.HasKey("Id");
+
+                    b.HasIndex("BasketId");
 
                     b.HasIndex("BookedSeatId");
 
                     b.HasIndex("PerformanceId");
-
-                    b.HasIndex("UserId")
-                        .IsUnique()
-                        .HasFilter("[UserId] IS NOT NULL");
 
                     b.ToTable("BasketTickets");
                 });
@@ -218,7 +218,8 @@ namespace GCTOnlineServices.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("Comment");
+                    b.Property<string>("Comment")
+                        .HasMaxLength(400);
 
                     b.Property<DateTime>("Date");
 
@@ -409,6 +410,10 @@ namespace GCTOnlineServices.Migrations
 
             modelBuilder.Entity("GCTOnlineServices.Models.BasketTicket", b =>
                 {
+                    b.HasOne("GCTOnlineServices.Models.Basket", "Basket")
+                        .WithMany("Tickets")
+                        .HasForeignKey("BasketId");
+
                     b.HasOne("GCTOnlineServices.Models.BookedSeat", "BookedSeat")
                         .WithMany("BasketTickets")
                         .HasForeignKey("BookedSeatId")
@@ -418,10 +423,6 @@ namespace GCTOnlineServices.Migrations
                         .WithMany()
                         .HasForeignKey("PerformanceId")
                         .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("GCTOnlineServices.Models.ApplicationUser", "User")
-                        .WithOne("BasketTickets")
-                        .HasForeignKey("GCTOnlineServices.Models.BasketTicket", "UserId");
                 });
 
             modelBuilder.Entity("GCTOnlineServices.Models.BookedSeat", b =>

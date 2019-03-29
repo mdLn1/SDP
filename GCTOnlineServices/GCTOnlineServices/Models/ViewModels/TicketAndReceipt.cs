@@ -10,6 +10,7 @@ namespace GCTOnlineServices.Models.ViewModels
     {
         public List<TicketsInBasket> Tickets { get; set; }
         public DateTime Date { get; set; }
+        public int OrderId { get; set; }
         public string PlayName { get; set; }
         public string PersonName { get; set; }
         public decimal TotalCost { get; set; }

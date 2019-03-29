@@ -14,5 +14,6 @@ namespace GCTOnlineServices.Models
         public decimal TotalPrice { get; set; }
 
         public virtual ApplicationUser User { get; set; }
+        public virtual ICollection<BasketTicket> Tickets { get; set; }
     }
 }

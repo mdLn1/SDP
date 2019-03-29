@@ -17,9 +17,11 @@ using System.IO;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Stripe;
+using GCTOnlineServices.Helpers;
 
 namespace GCTOnlineServices.Controllers
 {
+    // controller that handles all data for most of the processes and entities, apart from users and user's account related actions
     public class HomeController : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;
@@ -40,9 +42,8 @@ namespace GCTOnlineServices.Controllers
         }
 
         #region Create Review or Play
-
-        // done
-        // HttpGet for Create View which initialises and prepares an instance of Theatreformance
+        
+        // HttpGet for Create View which initialises and prepares an instance of Play
         // user can add maximum 20 dates for a firstly created performance
         public IActionResult CreatePlay()
         {
@@ -59,7 +60,7 @@ namespace GCTOnlineServices.Controllers
             return View(newPlay);
         }
 
-        // done
+        
         // HttpPost loads the previously initialised instance of performance with data received
         // from user input in the meanwhile
         [HttpPost]
@@ -85,10 +86,15 @@ namespace GCTOnlineServices.Controllers
             }
 
             #endregion
-            
-            // proceed only if data inputted is valid
+
+            // proceed only if data input is valid
             if (ModelState.IsValid)
             {
+                if (newPlay.PriceEnd < newPlay.PriceStart)
+                {
+                    ModelState.AddModelError("", "Price start must be less than last price.");
+                    return View(newPlay);
+                }
 
                 Play playCreated = new Play
                 {
@@ -107,19 +113,18 @@ namespace GCTOnlineServices.Controllers
                     await file.CopyToAsync(memoryStream);
 
                     #region Convert Data from TheatrePerformance to ERD Class Performance
+
                     playCreated.Picture = memoryStream.ToArray();
 
-                    //add the new play to database
-                    _context.Plays.Add(playCreated);
 
                     // for each valid date create an instance of performance
                     foreach (var perfDate in newPlay.LiveDates)
                     {
-                        if (!perfDate.Date.Day.Equals(DateTime.Now.Day))
+                        if (!perfDate.Date.Day.Equals(DateTime.Now.Day) && perfDate.Date > DateTime.Now)
                         {
                             Performance performanceDate = new Performance()
                             {
-                                Date = perfDate.Date,
+                                Date = perfDate,
                                 PlayId = playCreated.Id
                             };
                             playCreated.Performances.Add(performanceDate);
@@ -158,11 +163,11 @@ namespace GCTOnlineServices.Controllers
             return View(newPlay);
         }
 
-
-        //done
+        
         // Create a review
         public IActionResult CreateReview(int id)
         {
+            // create instance of review
             Models.Review review = new Models.Review()
             {
                 PlayId = id
@@ -170,20 +175,22 @@ namespace GCTOnlineServices.Controllers
             return View(review);
 
         }
-
-        // done
+        
         // HttpPost create review and add it to database
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateReview([Bind("PlayId, Comment")] Models.Review review)
         {
+            // check model
             if (ModelState.IsValid)
             {
+                // find user
                 var user = await _userManager.GetUserAsync(User);
                 review.UserId = user.Id;
                 review.UserName = user.UserName;
                 review.Date = DateTime.Now;
 
+                // find play and add to it the new review
                 var play = await _context.Plays.FirstOrDefaultAsync(x => x.Id == review.PlayId);
                 play.Reviews.Add(review);
 
@@ -196,8 +203,7 @@ namespace GCTOnlineServices.Controllers
         #endregion
 
         #region Delete Review or Play
-
-        // done
+        
         // HttpGet for deletion of a performance
         public async Task<IActionResult> DeletePlay(int? id)
         {
@@ -219,8 +225,8 @@ namespace GCTOnlineServices.Controllers
 
             return View(play);
         }
+        
 
-        // done
         // confirmation of performance deletion
         [HttpPost, ActionName("DeletePlay")]
         [ValidateAntiForgeryToken]
@@ -231,8 +237,7 @@ namespace GCTOnlineServices.Controllers
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(IndexPlays));
         }
-
-        // done
+        
         // display Delete page for the selected review
         public async Task<IActionResult> DeleteReview(int? id)
         {
@@ -240,18 +245,17 @@ namespace GCTOnlineServices.Controllers
             {
                 return NotFound();
             }
-            
+
             var review = await _context.Reviews.Include(x => x.Play).FirstOrDefaultAsync(m => m.Id == id);
             if (review == null)
             {
                 return NotFound();
             }
-            
+
 
             return View(review);
         }
-
-        // done
+        
         // Review confirmed to be deleted
         [HttpPost, ActionName("DeleteReview")]
         [ValidateAntiForgeryToken]
@@ -266,8 +270,8 @@ namespace GCTOnlineServices.Controllers
         #endregion
 
         #region Display Details Review or Play
-        // 
-        // return all the details of the selected performance
+       
+        // return all the details of the selected play
         public async Task<IActionResult> DetailsPlay(int? id)
         {
             // check if id not null
@@ -290,7 +294,7 @@ namespace GCTOnlineServices.Controllers
 
 
         // display details of a review
-        [Authorize(Roles = "Manager,Admin,SalesStaff")]
+        [Authorize(Roles = "Manager,SalesStaff")]
         public async Task<IActionResult> DetailsReview(int? id)
         {
             // check if id assigned
@@ -299,6 +303,7 @@ namespace GCTOnlineServices.Controllers
                 return NotFound();
             }
 
+            // find review 
             var review = await _context.Reviews
                 .Include(r => r.Play)
                 .Include(r => r.User)
@@ -315,8 +320,8 @@ namespace GCTOnlineServices.Controllers
         #endregion
 
         #region Edit Play or Review
-        //done
-        // HttpGet request for editing the selected play
+  
+        // request for editing the selected play
         public async Task<IActionResult> EditPlay(int? id)
         {
             //check if it has an id, if not send a 404 NotFound response
@@ -335,22 +340,23 @@ namespace GCTOnlineServices.Controllers
                 return NotFound();
             }
             int count = 0;
-            PerformanceEdit performanceEdit = _mapper.Map<PerformanceEdit>(playFound);
-
+            EditPlay performanceEdit = _mapper.Map<EditPlay>(playFound);
+            performanceEdit.LiveDates = new List<DateTime>();
+            DateTime newDate = DateTime.Parse(DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture));
             while (count < 21)
             {
                 count++;
-                performanceEdit.LiveDates.Add(DateTime.Now);
+                performanceEdit.LiveDates.Add(newDate);
             }
 
             return View(performanceEdit);
         }
 
-        // done
-        // HttpPost receive the play that was to be edited with the new content
+       
+        // receive the play that was to be edited with the new content
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditPlay(int Id, PerformanceEdit play)
+        public async Task<IActionResult> EditPlay(int Id, EditPlay play)
         {
             // check if Ids match, if not return 404 Not Found Exception
             if (Id != play.Id)
@@ -392,7 +398,7 @@ namespace GCTOnlineServices.Controllers
                     }
 
                 }
-                
+
                 perfEdit.Name = play.Name;
                 perfEdit.Description = play.Description;
                 perfEdit.AgeRestriction = play.AgeRestriction.ToString();
@@ -418,10 +424,8 @@ namespace GCTOnlineServices.Controllers
             return View(play);
         }
 
-
-        // done
-        // Edit a review allowed by higher authority
-        [Authorize(Roles = "Manager,Admin,SalesStaff")]
+        
+        // Edit a review allowed by higher authority or user that created it
         public async Task<IActionResult> EditReview(int? id)
         {
             if (id == null)
@@ -440,10 +444,8 @@ namespace GCTOnlineServices.Controllers
             ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", review.UserId);
             return View(review);
         }
-
-        // done
+        
         // submit changes to the edited review
-        [Authorize(Roles = "Manager,Admin,SalesStaff")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditReview(int id, [Bind("Id,Comment,Date")] Models.Review review)
@@ -504,11 +506,11 @@ namespace GCTOnlineServices.Controllers
             }
             ViewData["Index"] = number;
             ViewData["NumberOfPerformances"] = noOfPlays;
+            
 
             return View(plays);
         }
-
-        // done
+        
         // get all the orders for a specific client
         public async Task<IActionResult> IndexOrders()
         {
@@ -518,7 +520,16 @@ namespace GCTOnlineServices.Controllers
             return View(orders);
         }
 
-        // done
+
+        // get all the orders 
+        public async Task<IActionResult> AllOrders()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var orders = await _context.Orders.Include(x => x.User).ToListAsync();
+
+            return View(orders);
+        }
+        
         // get all the sold tickets for a specific order
         public async Task<IActionResult> OrderedTickets(int? id)
         {
@@ -533,8 +544,7 @@ namespace GCTOnlineServices.Controllers
 
             return View(tickets);
         }
-
-        // done
+        
         // return all the plays, admin/sales staff view
         public async Task<IActionResult> IndexPlays()
         {
@@ -604,25 +614,29 @@ namespace GCTOnlineServices.Controllers
 
 
         #region Client Basket related actions
-
-        // done
+        
         // return the content of user's basket
         public async Task<IActionResult> Basket()
         {
+            // find user logged in
             var user = await _userManager.GetUserAsync(User);
-
+            // get all the tickets saved in the basket
             var basketTickets = _context.BasketTickets.Include(x => x.Performance).ThenInclude(y => y.Play)
-                .Include(x => x.BookedSeat).ThenInclude(y => y.Seat).Where(bt => bt.UserId == user.Id);
+                .Include(x => x.BookedSeat).ThenInclude(y => y.Seat).Where(bt => bt.BasketId == user.Id);
+            // find the basket
             var basket = await _context.Basket.FindAsync(user.Id);
-            ViewBasket viewBasket = new ViewBasket();
-            viewBasket.DeliveryMethod = new List<string>();
-            viewBasket.tickets = new List<TicketsInBasket>();
-
+            // model for showing multiple components of a basket
+            ViewBasket viewBasket = new ViewBasket
+            {
+                DeliveryMethod = new List<string>(),
+                tickets = new List<TicketsInBasket>()
+            };
+            // add second option for shipping
             viewBasket.DeliveryMethod.Add("Pick from collection booth");
 
             if (basketTickets != null)
             {
-                
+                // filter what details to show for tickets
                 foreach (var item in basketTickets)
                 {
                     TicketsInBasket ticket = new TicketsInBasket
@@ -632,56 +646,77 @@ namespace GCTOnlineServices.Controllers
                         SeatLetter = item.BookedSeat.Seat.ColumnLetter,
                         PerformanceName = item.Performance.Play.Name,
                         Id = item.Id,
-                        PerformanceTime = item.Performance.Date
+                        PerformanceTime = item.Performance.Date,
                     };
                     viewBasket.Total += item.Price;
                     viewBasket.tickets.Add(ticket);
                 }
+                viewBasket.ApprovedDiscounts = user.ApprovedMultipleDiscounts;
+                viewBasket.SavedCard = user.SavedCustomerCard;
                 viewBasket.DeliveryMethod.Add(basket.ShippingMethod);
+
                 return View(viewBasket);
             }
-
+            
             return View(viewBasket);
         }
 
-        // done
         // remove ticket
         [HttpGet]
         public async Task<IActionResult> DeleteTicket(int? id)
         {
 
-            var ticket = await _context.BasketTickets.FirstOrDefaultAsync(m => m.BookedSeatId == id);
+            var ticket = await _context.BasketTickets.Include(x => x.BookedSeat).FirstOrDefaultAsync(m => m.Id == id);
+            ticket.BookedSeat.Booked = 0;
             _context.BasketTickets.Remove(ticket);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Basket));
         }
-        // done
-        // add selected seats to basket as tikets
-        [HttpGet]
-        public async Task<IActionResult> AddToBasket(string savedSeats)
-        {
 
-            if (savedSeats != "" && savedSeats != null)
+        // add selected seats to basket as tickets
+        [HttpGet]
+        public async Task<IActionResult> AddToBasket()
+        {
+            // get the selected seats
+            List<TheatreSeat> seats = _ticketsToBuy.GetSelectedSeats();
+
+            if (seats.Any())
             {
-                // get the selected seats
-                List<TheatreSeat> seats = _ticketsToBuy.GetSelectedSeats();
+                // get the performance
                 var performance = await _context.BookedSeats.FirstOrDefaultAsync(x => x.Id == seats[0].Id);
+
+                //find logged in user
                 var user = await _userManager.GetUserAsync(User);
+
+                // get user's basket and the tickets inside
+                var basket = await _context.Basket.Include(x => x.Tickets).FirstOrDefaultAsync(x => x.UserId == user.Id);
+
                 foreach (TheatreSeat seat in seats)
                 {
+                    BasketTicket newBasketTicket = new BasketTicket()
+                    {
+                        BasketId = basket.UserId,
+                        BookedSeatId = seat.Id,
+                        PerformanceId = performance.PerformanceId,
+                        Price = seat.Price
+                    };
                     //add each ticket to basket
-                    await _context.BasketTickets
-                        .AddAsync(new BasketTicket() { UserId = user.Id, BookedSeatId = seat.Id,
-                            PerformanceId = performance.PerformanceId, Price = seat.Price });
-
+                    basket.Tickets.Add(newBasketTicket);
                 }
-
-                _ticketsToBuy.RemoveAllSelectedSeats();
+                
                 // save changes
                 await _context.SaveChangesAsync();
+                _ticketsToBuy.RemoveAllSelectedSeats();
                 return RedirectToAction(nameof(Basket));
 
             }
+            TempData["UserNotifier"] = new UserNotifier()
+            {
+                CssFormat = "alert-danger",
+                Content = "No seats selected, you were redirected to the main page.",
+                MessageType = "Error!"
+            };
+
             return RedirectToAction(nameof(Index));
 
         }
@@ -692,7 +727,6 @@ namespace GCTOnlineServices.Controllers
         #region Booking process related Actions
 
         [AllowAnonymous]
-        //done
         // return view to allow user to pick a date
         public IActionResult SelectDate(int? Id)
         {
@@ -703,7 +737,7 @@ namespace GCTOnlineServices.Controllers
             var play = _context.Plays.Include(x => x.Performances).Include(x => x.Reviews)
                 .FirstOrDefault(x => x.Id == Id);
 
-            var foundDates = play.Performances.Where(x => x.Date > DateTime.Now).OrderBy(x => x.Date).ToList();
+            var foundDates = play.Performances.Where(x => x.Date > DateTime.Now).OrderByDescending(x => x.Date).ToList();
 
             TheatrePlay currentPlay = _mapper.Map<TheatrePlay>(play);
             currentPlay.Performances = foundDates;
@@ -711,25 +745,211 @@ namespace GCTOnlineServices.Controllers
 
             return View(currentPlay);
         }
+        
+        // print tickets of an order
+        [Authorize(Roles = "SalesStaff,Manager")]
+        public async Task<IActionResult> PrintTickets(int? id)
+        {
+            if (id == null)
+            {
+                return RedirectToAction(nameof(IndexOrders));
+            }
+            // find the tickets sold in the specific order
+            var order = await _context.Orders.Include(x => x.SoldTickets).FirstOrDefaultAsync(x => x.Id == id);
+            if (!order.IsPrinted)
+            {
+                order.IsPrinted = true;
+                _context.Orders.Update(order);
+                await _context.SaveChangesAsync();
+            }
+            
 
+            return View(order.SoldTickets.ToList());
+        }
+        
         [HttpPost]
-        // done
-        // basket checkout
-        public async Task<IActionResult> BuyNow(ViewBasket basketView,string stripeToken, bool RememberMe, string customerName)
+        // use when customer saved card details
+        public async Task<IActionResult> UseSavedCard(decimal Total, string selectedDelivery)
         {
             var user = await _userManager.GetUserAsync(User);
             var role = await _userManager.GetRolesAsync(user);
-            var tickets = await _context.BasketTickets
-                .Include(x => x.BookedSeat).ThenInclude(y => y.Seat).Where(x => x.UserId == user.Id).ToListAsync();
+            var tickets = await _context.BasketTickets.Include(x => x.Performance).ThenInclude(y => y.Play)
+                .Include(x => x.BookedSeat).ThenInclude(y => y.Seat).Where(x => x.BasketId == user.Id).ToListAsync();
+            long amount = 0;
             // check if any seats
-            if (tickets.Count > 0 && user.Basket.TotalPrice > 0)
+            if (tickets.Count > 0 && Total > 0)
             {
-                long amount = long.Parse(user.Basket.TotalPrice.ToString("#.00").Replace(".", ""));
+                // calculate the amount
+                amount = long.Parse(Total.ToString("#.00").Replace(".", ""));
+                if (amount < 100)
+                {
+                    amount *= 100;
+                }
+            }
+            else
+            {
+                // if basket empty return Basket View
+                return View(nameof(Basket));
+            }
+                var chargeOptions = new ChargeCreateOptions
+            {
+                Amount = amount,
+                Currency = "gbp",
+                Description = "Theatre charge",
+                CustomerId = user.SavedCustomerCard
+            };
+            var chargeService = new ChargeService();
+            Charge charge = chargeService.Create(chargeOptions);
+
+            // if charge succeeded create order
+            if (charge.Status.ToLower() == "succeeded")
+            {
+                // charge succeeded, create an order
+                Models.Order newOrder = new Models.Order()
+                {
+                    OrderTime = DateTime.Now,
+                    UserId = user.Id,
+                    DeliveryMethod = selectedDelivery,
+                    IsPrinted = false
+                };
+
+                // check who is the customer
+                if (role[0] == "Customer")
+                {
+
+                    newOrder.ClientName = user.FirstName + " " + user.LastName;
+                }
+                else if (role[0] == "AgencyOrClub")
+                {
+                    newOrder.ClientName = user.AgencyOrClubName;
+                }
+
+                // see if there was a discount
+                DateTime time = DateTime.Now;
+                bool discount = false;
+                if (((int)time.DayOfWeek < 5) && ((int)time.DayOfWeek > 0))
+                {
+                    discount = true;
+
+                }
+
+                List<TicketsInBasket> ticketsBought = new List<TicketsInBasket>();
+
+                // create a sold ticket for each seat reserved
+                foreach (BasketTicket basketTicket in tickets)
+                {
+
+                    TicketsInBasket ticket = new TicketsInBasket
+                    {
+                        Price = basketTicket.Price,
+                        RowNumber = basketTicket.BookedSeat.Seat.RowNumber,
+                        SeatLetter = basketTicket.BookedSeat.Seat.ColumnLetter,
+                        PerformanceName = basketTicket.Performance.Play.Name,
+                        Id = basketTicket.Id,
+                        PerformanceTime = basketTicket.Performance.Date
+                    };
+                    ticketsBought.Add(ticket);
+
+                    SoldTicket soldTicket = new SoldTicket
+                    {
+                        PlayName = basketTicket.Performance.Play.Name,
+                        UserId = user.Id,
+                        CustomerName = newOrder.ClientName,
+                        PerformanceTimeAndDate = basketTicket.Performance.Date,
+                        ColumnLetter = ticket.SeatLetter,
+                        Band = basketTicket.BookedSeat.Seat.Band,
+                        RowNumber = ticket.RowNumber
+                    };
+
+                    // check if there is a discount for week days
+                    if (discount)
+                    {
+                        soldTicket.PaidPrice = basketTicket.Price * 8 / 10;
+                    }
+                    else
+                    {
+                        soldTicket.PaidPrice = basketTicket.Price;
+                    }
+                    newOrder.SoldTickets.Add(soldTicket);
+                }
+
+                decimal finalPrice = 0;
+
+                // add order to database
+                await _context.Orders.AddAsync(newOrder);
+
+                //reserve seats
+                foreach (BasketTicket basketTicket in tickets)
+                {
+                    var bookedSeat = await _context.BookedSeats
+                        .FirstOrDefaultAsync(x => x.Id == basketTicket.BookedSeatId);
+                    if (discount)
+                    {
+                        finalPrice += basketTicket.Price;
+                    }
+                    bookedSeat.Booked = 2;
+                    _context.Update(bookedSeat);
+                }
+
+                var basket = await _context.Basket.Include(x => x.Tickets).FirstOrDefaultAsync(x => x.UserId == user.Id);
+                // remove all the tickets in the basket
+                basket.Tickets.Clear();
+
+                await _context.SaveChangesAsync();
+                // if agency/club and approved, receive discounts for more than 20 tickets
+                if (role[0] == "AgencyOrClub" && ticketsBought.Count > 19)
+                {
+                    if (user.ApprovedMultipleDiscounts == true)
+                    {
+                        finalPrice = finalPrice * 9 / 10;
+                    }
+                }
+                // create tickets and receipt view
+                TicketAndReceipt ticketAndReceipt = new TicketAndReceipt()
+                {
+                    TotalCost = Total,
+                    OrderId = newOrder.Id,
+                    PersonName = newOrder.ClientName,
+                    Tickets = ticketsBought,
+                    DiscountApplied = discount,
+                    Saved = 0
+                };
+
+                if (discount)
+                {
+                    ticketAndReceipt.Saved = Total - finalPrice;
+                }
+                return View(ticketAndReceipt);
+            }
+            else
+            {
+                // if payment failed resend to basket
+                return RedirectToAction(nameof(Basket));
+            }
+
+
+        }
+
+        [HttpPost]
+        // basket checkout
+        public async Task<IActionResult> Checkout(string stripeToken, bool RememberMe,
+            string customerName, decimal Total, string selectedDelivery)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var role = await _userManager.GetRolesAsync(user);
+            var tickets = await _context.BasketTickets.Include(x => x.Performance).ThenInclude(y => y.Play)
+                .Include(x => x.BookedSeat).ThenInclude(y => y.Seat).Where(x => x.BasketId == user.Id).ToListAsync();
+
+            // check if any seats
+            if (tickets.Count > 0 && Total > 0)
+            {
+                long amount = long.Parse(Total.ToString("#.00").Replace(".", ""));
                 if (amount < 100)
                 {
                     amount *= 100;
                 }
 
+                // verify payment succeeds
                 if (Charge(user.Email, stripeToken, amount, RememberMe))
                 {
                     // charge succeeded, create an order
@@ -737,20 +957,23 @@ namespace GCTOnlineServices.Controllers
                     {
                         OrderTime = DateTime.Now,
                         UserId = user.Id,
-                        DeliveryMethod = user.Basket.ShippingMethod
-                        
+                        DeliveryMethod = selectedDelivery,
+                        IsPrinted = false
                     };
 
-                    // check who is the customer
+                    // check the type of client
                     if (role[0] == "Customer")
                     {
 
                         newOrder.ClientName = user.FirstName + " " + user.LastName;
-                    } else if (role[0] == "AgencyOrClub") {
+                    }
+                    else if (role[0] == "AgencyOrClub")
+                    {
                         newOrder.ClientName = user.AgencyOrClubName;
                     }
                     else
                     {
+                        newOrder.DeliveryMethod = "Pick from collection booth";
                         newOrder.ClientName = customerName;
                     }
 
@@ -762,22 +985,42 @@ namespace GCTOnlineServices.Controllers
                         discount = true;
 
                     }
+
+                    List<TicketsInBasket> ticketsBought = new List<TicketsInBasket>();
+
                     // create a sold ticket for each seat reserved
-                    foreach (TicketsInBasket seatBooked in basketView.tickets)
+                    foreach (BasketTicket basketTicket in tickets)
                     {
-                        SoldTicket soldTicket = _mapper.Map<SoldTicket>(seatBooked);
-                        soldTicket.PlayName = seatBooked.PerformanceName;
-                        soldTicket.UserId = user.Id;
-                        soldTicket.CustomerName = newOrder.ClientName;
-                        soldTicket.PerformanceTimeAndDate = seatBooked.PerformanceTime;
+
+                        TicketsInBasket ticket = new TicketsInBasket
+                        {
+                            Price = basketTicket.Price,
+                            RowNumber = basketTicket.BookedSeat.Seat.RowNumber,
+                            SeatLetter = basketTicket.BookedSeat.Seat.ColumnLetter,
+                            PerformanceName = basketTicket.Performance.Play.Name,
+                            Id = basketTicket.Id,
+                            PerformanceTime = basketTicket.Performance.Date
+                        };
+                        ticketsBought.Add(ticket);
+
+                        SoldTicket soldTicket = new SoldTicket
+                        {
+                            PlayName = basketTicket.Performance.Play.Name,
+                            UserId = user.Id,
+                            CustomerName = newOrder.ClientName,
+                            PerformanceTimeAndDate = basketTicket.Performance.Date,
+                            ColumnLetter = ticket.SeatLetter,
+                            Band = basketTicket.BookedSeat.Seat.Band,
+                            RowNumber = ticket.RowNumber
+                        };
+
                         if (discount)
                         {
-                            soldTicket.PaidPrice = seatBooked.Price;
-                            //soldTicket.PaidPrice = seatBooked.ReducedPrice;
+                            soldTicket.PaidPrice = basketTicket.Price * 8 / 10;
                         }
                         else
                         {
-                            soldTicket.PaidPrice = seatBooked.Price;
+                            soldTicket.PaidPrice = basketTicket.Price;
                         }
                         newOrder.SoldTickets.Add(soldTicket);
                     }
@@ -786,76 +1029,91 @@ namespace GCTOnlineServices.Controllers
 
                     // add order to database
                     await _context.Orders.AddAsync(newOrder);
-                    
-                    foreach (TicketsInBasket seat in basketView.tickets)
+
+                    foreach (BasketTicket basketTicket in tickets)
                     {
                         var bookedSeat = await _context.BookedSeats
-                            .FirstOrDefaultAsync(x => x.Id == seat.Id);
+                            .FirstOrDefaultAsync(x => x.Id == basketTicket.BookedSeatId);
                         if (discount)
                         {
-                            finalPrice += seat.Price;
+                            finalPrice += basketTicket.Price;
                         }
                         bookedSeat.Booked = 2;
                         _context.Update(bookedSeat);
-
                     }
-                    await _context.SaveChangesAsync();
-                    
 
+                    var basket = await _context.Basket.Include(x => x.Tickets).FirstOrDefaultAsync(x => x.UserId == user.Id);
+
+                    basket.Tickets.Clear();
+
+                    await _context.SaveChangesAsync();
+
+                    if (role[0] == "AgencyOrClub" && ticketsBought.Count > 19)
+                    {
+                        if (user.ApprovedMultipleDiscounts == true)
+                        {
+                            finalPrice = finalPrice * 9 / 10;
+                        }
+                    }
                     // cereate tickets and receipt view
                     TicketAndReceipt ticketAndReceipt = new TicketAndReceipt()
                     {
-                        TotalCost = basketView.Total,
+                        TotalCost = Total,
+                        OrderId = newOrder.Id,
                         PersonName = newOrder.ClientName,
-                        Tickets = basketView.tickets,
+                        Tickets = ticketsBought,
                         DiscountApplied = discount,
                         Saved = 0
                     };
 
                     if (discount)
                     {
-                        ticketAndReceipt.Saved = basketView.Total - finalPrice;
+                        ticketAndReceipt.Saved = Total - finalPrice;
                     }
-
                     return View(ticketAndReceipt);
+                }
+                else
+                {
+                    TempData["UserNotifier"] = new UserNotifier()
+                    {
+                        CssFormat = "alert-danger",
+                        Content = "Payment was declined",
+                        MessageType = "Error!"
+                    };
+                    return RedirectToAction(nameof(Basket));
                 }
             }
             return View();
         }
 
-        // done
+
         //get the seating plan for the specified performance
         [HttpGet]
         public async Task<IActionResult> Seating(string DateSelected = null, string Id = null)
         {
-            ViewBag.Date = DateTime.Now.AddMinutes(5);
-            
+            // check if it received an id
             if (Id == null)
             {
                 return View();
             }
-
-
-            List<string> parames = new List<string>
-            {
-                Id,
-                DateSelected
-            };
-
+            
+            // find the performance
             var perfDate = _context.Performances.Include(x => x.Play)
                 .Include(x => x.BookedSeats).ThenInclude(x => x.Seat)
                 .FirstOrDefault(x => x.Date == DateTime.Parse(DateSelected));
 
-            IQueryable<string> rowNames = from r in _context.Seats
-                                       orderby r.Band
-                                       select r.Band.Trim();
+            // find the different bands
+            IQueryable<string> bands = from r in _context.Seats
+                                          orderby r.Band
+                                          select r.Band.Trim();
 
-            List<string> rows = await rowNames.Distinct().ToListAsync();
+            List<string> rows = await bands.Distinct().ToListAsync();
             for (int i = 0; i < rows.Count; i++)
             {
                 rows[i] = rows.ElementAt(i);
             }
 
+            // check if discounts available
             bool discount = false;
             DateTime time = DateTime.Now;
             if (((int)time.DayOfWeek < 5) && ((int)time.DayOfWeek > 0))
@@ -866,6 +1124,7 @@ namespace GCTOnlineServices.Controllers
             decimal endPrice = perfDate.Play.PriceStart;
             decimal startPrice = perfDate.Play.PriceEnd;
 
+            // calculate seat costs depending on band
             List<decimal> costs = new List<decimal>();
 
             if (discount)
@@ -880,9 +1139,20 @@ namespace GCTOnlineServices.Controllers
 
             var user = await _userManager.GetUserAsync(User);
 
+            // check if there were seats not booked but saved to basket and longer than 10 minutes
+            foreach (BookedSeat seat in perfDate.BookedSeats)
+            {
+                if (seat.Booked == 1 && seat.ExpiryTime < DateTime.Now)
+                {
+                    seat.Booked = 0;
+                    _context.Update(seat);
+                }
+            }
+
+            // model for showing the UI
             DisplaySeating newTicket = new DisplaySeating()
             {
-                SelectedDate = DateTime.Parse(parames.ElementAt(1)),
+                SelectedDate = DateTime.Parse(DateSelected),
                 BookedSeats = perfDate.BookedSeats.OrderBy(x => x.Seat.SeatNumber).ToList(),
                 RowNames = rows,
                 Costs = costs,
@@ -897,9 +1167,8 @@ namespace GCTOnlineServices.Controllers
 
             return View(newTicket);
         }
-
-        // done
-        // require a seat to be added to tickets to buy
+        
+        // require a seat to be added to tickets to buy singleton
         [HttpGet]
         public async Task<ActionResult> ReserveSeat(int id, decimal price)
         {
@@ -919,24 +1188,25 @@ namespace GCTOnlineServices.Controllers
                 if (savedSeat.Id == id)
                 {
                     _ticketsToBuy.DeleteSeat(id);
-                    bookSeatResult.Result = "unsuccesful";
-                    
+                    bookSeatResult.Result = "unsuccessful";
+
                     return Json(bookSeatResult);
                 }
             }
 
-            // handle pricing if discoun is to be applied
+            // handle pricing if discount is to be applied
             DateTime time = DateTime.Now;
             if (((int)time.DayOfWeek < 5) && ((int)time.DayOfWeek > 0))
             {
                 discount = true;
 
             }
-            if(discount)
+            if (discount)
             {
                 newSeat.Price = price * 10 / 8;
                 newSeat.ReducedPrice = price;
-            } else
+            }
+            else
             {
                 newSeat.Price = price;
             }
@@ -945,7 +1215,7 @@ namespace GCTOnlineServices.Controllers
             var seat = await _context.BookedSeats.Include(x => x.Seat).FirstOrDefaultAsync(x => x.Id == id);
             if (seat.Booked != 2)
             {
-                seat.ExpiryTime = DateTime.Now.AddMinutes(5);
+                seat.ExpiryTime = DateTime.Now.AddMinutes(10);
                 seat.Booked = 1;
 
                 newSeat.Booked = seat.Booked;
@@ -954,24 +1224,31 @@ namespace GCTOnlineServices.Controllers
                 newSeat.RowNumber = seat.Seat.RowNumber;
                 newSeat.Band = seat.Seat.Band;
 
-                _ticketsToBuy.AddSeat(newSeat);
-
                 // set a temporary lock on the seat
                 try
                 {
                     _context.Update(seat);
                     await _context.SaveChangesAsync();
+                    bookSeatResult.Result = "finished successfully";
                 }
                 catch (DbUpdateConcurrencyException)
                 {
+
+                    bookSeatResult.Result = "unsuccessful";
                 }
+
+            }
+            else if (seat.Booked == 2)
+            {
+                bookSeatResult.Message = "Seat could not be added, it is being booked by someone else.";
             }
 
-            bookSeatResult.Result = "finished successfully";
+            _ticketsToBuy.AddSeat(newSeat);
+
+
             return Json(bookSeatResult);
         }
-
-        // done
+        
         // try charging the customer, return true if it worked
         public bool Charge(string stripeEmail, string stripeToken, long amount, bool RememberMe)
         {
@@ -991,7 +1268,7 @@ namespace GCTOnlineServices.Controllers
                 // Charge the Customer instead of the card:
                 var chargeOptions = new ChargeCreateOptions
                 {
-                    Amount = 1000,
+                    Amount = amount,
                     Currency = "gbp",
                     Description = "Theatre charge",
                     CustomerId = customer.Id,

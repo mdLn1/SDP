@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace GCTOnlineServices.Migrations
 {
-    public partial class FullDesignCreated : Migration
+    public partial class FullDesign : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -47,7 +47,8 @@ namespace GCTOnlineServices.Migrations
                     LastName = table.Column<string>(nullable: true),
                     DateOfBirth = table.Column<DateTime>(nullable: false),
                     SavedCustomerCard = table.Column<string>(nullable: true),
-                    Address = table.Column<string>(nullable: true)
+                    Address = table.Column<string>(nullable: true),
+                    ApprovedMultipleDiscounts = table.Column<bool>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -55,7 +56,7 @@ namespace GCTOnlineServices.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Performances",
+                name: "Plays",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
@@ -69,7 +70,7 @@ namespace GCTOnlineServices.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Performances", x => x.Id);
+                    table.PrimaryKey("PK_Plays", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -80,7 +81,8 @@ namespace GCTOnlineServices.Migrations
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     Band = table.Column<string>(nullable: true),
                     ColumnLetter = table.Column<string>(nullable: true),
-                    RowNumber = table.Column<int>(nullable: false)
+                    RowNumber = table.Column<int>(nullable: false),
+                    SeatNumber = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -220,7 +222,7 @@ namespace GCTOnlineServices.Migrations
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     UserId = table.Column<string>(nullable: true),
                     ClientName = table.Column<string>(nullable: true),
-                    PerformanceName = table.Column<string>(nullable: true),
+                    PlayName = table.Column<string>(nullable: true),
                     OrderTime = table.Column<DateTime>(nullable: false),
                     DeliveryMethod = table.Column<string>(nullable: true)
                 },
@@ -236,21 +238,21 @@ namespace GCTOnlineServices.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "PerformanceDates",
+                name: "Performances",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    PerformanceId = table.Column<int>(nullable: false),
+                    PlayId = table.Column<int>(nullable: false),
                     Date = table.Column<DateTime>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_PerformanceDates", x => x.Id);
+                    table.PrimaryKey("PK_Performances", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_PerformanceDates_Performances_PerformanceId",
-                        column: x => x.PerformanceId,
-                        principalTable: "Performances",
+                        name: "FK_Performances_Plays_PlayId",
+                        column: x => x.PlayId,
+                        principalTable: "Plays",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -261,19 +263,19 @@ namespace GCTOnlineServices.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    PerformanceId = table.Column<int>(nullable: false),
+                    PlayId = table.Column<int>(nullable: false),
                     UserId = table.Column<string>(nullable: true),
                     UserName = table.Column<string>(nullable: true),
-                    Comment = table.Column<string>(nullable: true),
+                    Comment = table.Column<string>(maxLength: 400, nullable: true),
                     Date = table.Column<DateTime>(nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Reviews", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Reviews_Performances_PerformanceId",
-                        column: x => x.PerformanceId,
-                        principalTable: "Performances",
+                        name: "FK_Reviews_Plays_PlayId",
+                        column: x => x.PlayId,
+                        principalTable: "Plays",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -294,7 +296,7 @@ namespace GCTOnlineServices.Migrations
                     UserId = table.Column<string>(nullable: true),
                     CustomerName = table.Column<string>(nullable: true),
                     PaidPrice = table.Column<decimal>(nullable: false),
-                    PerformanceName = table.Column<string>(nullable: true),
+                    PlayName = table.Column<string>(nullable: true),
                     Band = table.Column<string>(nullable: true),
                     ColumnLetter = table.Column<string>(nullable: true),
                     RowNumber = table.Column<int>(nullable: false),
@@ -308,7 +310,7 @@ namespace GCTOnlineServices.Migrations
                         column: x => x.OrderId,
                         principalTable: "Orders",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_SoldTickets_AspNetUsers_UserId",
                         column: x => x.UserId,
@@ -323,7 +325,7 @@ namespace GCTOnlineServices.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    PerformanceDateId = table.Column<int>(nullable: false),
+                    PerformanceId = table.Column<int>(nullable: false),
                     SeatId = table.Column<int>(nullable: false),
                     Booked = table.Column<byte>(nullable: false),
                     ExpiryTime = table.Column<DateTime>(nullable: true)
@@ -332,9 +334,9 @@ namespace GCTOnlineServices.Migrations
                 {
                     table.PrimaryKey("PK_BookedSeats", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_BookedSeats_PerformanceDates_PerformanceDateId",
-                        column: x => x.PerformanceDateId,
-                        principalTable: "PerformanceDates",
+                        name: "FK_BookedSeats_Performances_PerformanceId",
+                        column: x => x.PerformanceId,
+                        principalTable: "Performances",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -351,8 +353,8 @@ namespace GCTOnlineServices.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    UserId = table.Column<string>(nullable: true),
-                    PerformanceDateId = table.Column<int>(nullable: false),
+                    BasketId = table.Column<string>(nullable: true),
+                    PerformanceId = table.Column<int>(nullable: false),
                     BookedSeatId = table.Column<int>(nullable: false),
                     Price = table.Column<decimal>(nullable: false)
                 },
@@ -360,23 +362,23 @@ namespace GCTOnlineServices.Migrations
                 {
                     table.PrimaryKey("PK_BasketTickets", x => x.Id);
                     table.ForeignKey(
+                        name: "FK_BasketTickets_Basket_BasketId",
+                        column: x => x.BasketId,
+                        principalTable: "Basket",
+                        principalColumn: "UserId",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
                         name: "FK_BasketTickets_BookedSeats_BookedSeatId",
                         column: x => x.BookedSeatId,
                         principalTable: "BookedSeats",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_BasketTickets_PerformanceDates_PerformanceDateId",
-                        column: x => x.PerformanceDateId,
-                        principalTable: "PerformanceDates",
+                        name: "FK_BasketTickets_Performances_PerformanceId",
+                        column: x => x.PerformanceId,
+                        principalTable: "Performances",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_BasketTickets_AspNetUsers_UserId",
-                        column: x => x.UserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
@@ -419,26 +421,24 @@ namespace GCTOnlineServices.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
+                name: "IX_BasketTickets_BasketId",
+                table: "BasketTickets",
+                column: "BasketId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_BasketTickets_BookedSeatId",
                 table: "BasketTickets",
                 column: "BookedSeatId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_BasketTickets_PerformanceDateId",
+                name: "IX_BasketTickets_PerformanceId",
                 table: "BasketTickets",
-                column: "PerformanceDateId");
+                column: "PerformanceId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_BasketTickets_UserId",
-                table: "BasketTickets",
-                column: "UserId",
-                unique: true,
-                filter: "[UserId] IS NOT NULL");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_BookedSeats_PerformanceDateId",
+                name: "IX_BookedSeats_PerformanceId",
                 table: "BookedSeats",
-                column: "PerformanceDateId");
+                column: "PerformanceId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_BookedSeats_SeatId",
@@ -451,14 +451,14 @@ namespace GCTOnlineServices.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_PerformanceDates_PerformanceId",
-                table: "PerformanceDates",
-                column: "PerformanceId");
+                name: "IX_Performances_PlayId",
+                table: "Performances",
+                column: "PlayId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Reviews_PerformanceId",
+                name: "IX_Reviews_PlayId",
                 table: "Reviews",
-                column: "PerformanceId");
+                column: "PlayId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Reviews_UserId",
@@ -494,9 +494,6 @@ namespace GCTOnlineServices.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "Basket");
-
-            migrationBuilder.DropTable(
                 name: "BasketTickets");
 
             migrationBuilder.DropTable(
@@ -509,13 +506,16 @@ namespace GCTOnlineServices.Migrations
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
+                name: "Basket");
+
+            migrationBuilder.DropTable(
                 name: "BookedSeats");
 
             migrationBuilder.DropTable(
                 name: "Orders");
 
             migrationBuilder.DropTable(
-                name: "PerformanceDates");
+                name: "Performances");
 
             migrationBuilder.DropTable(
                 name: "Seats");
@@ -524,7 +524,7 @@ namespace GCTOnlineServices.Migrations
                 name: "AspNetUsers");
 
             migrationBuilder.DropTable(
-                name: "Performances");
+                name: "Plays");
         }
     }
 }

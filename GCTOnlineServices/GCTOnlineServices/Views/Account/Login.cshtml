@@ -12,15 +12,6 @@
             <form asp-route-returnurl="@ViewData["ReturnUrl"]" method="post">
                 @Html.AntiForgeryToken()
                 <hr />
-                @if (@ViewBag.ErrorLog != null)
-                {
-                    <div class="form-group">
-                        <label class="text-danger">@ViewBag.ErrorLog</label>
-                    </div>
-                }
-                    <div>
-                        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-                    </div>
                 <div asp-validation-summary="All" class="text-danger"></div>
                 @*<div class="form-group">
                     <label class="text-danger">@Html.ValidationMessage("ErrorLog")</label>

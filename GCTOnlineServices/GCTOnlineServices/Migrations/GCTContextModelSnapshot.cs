@@ -105,23 +105,21 @@ namespace GCTOnlineServices.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<string>("BasketId");
+
                     b.Property<int>("BookedSeatId");
 
                     b.Property<int>("PerformanceId");
 
                     b.Property<decimal>("Price");
 
-                    b.Property<string>("UserId");
-
                     b.HasKey("Id");
+
+                    b.HasIndex("BasketId");
 
                     b.HasIndex("BookedSeatId");
 
                     b.HasIndex("PerformanceId");
-
-                    b.HasIndex("UserId")
-                        .IsUnique()
-                        .HasFilter("[UserId] IS NOT NULL");
 
                     b.ToTable("BasketTickets");
                 });
@@ -159,9 +157,9 @@ namespace GCTOnlineServices.Migrations
 
                     b.Property<string>("DeliveryMethod");
 
-                    b.Property<DateTime>("OrderTime");
+                    b.Property<bool>("IsPrinted");
 
-                    b.Property<string>("PlayName");
+                    b.Property<DateTime>("OrderTime");
 
                     b.Property<string>("UserId");
 
@@ -218,7 +216,8 @@ namespace GCTOnlineServices.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("Comment");
+                    b.Property<string>("Comment")
+                        .HasMaxLength(400);
 
                     b.Property<DateTime>("Date");
 
@@ -409,6 +408,10 @@ namespace GCTOnlineServices.Migrations
 
             modelBuilder.Entity("GCTOnlineServices.Models.BasketTicket", b =>
                 {
+                    b.HasOne("GCTOnlineServices.Models.Basket", "Basket")
+                        .WithMany("Tickets")
+                        .HasForeignKey("BasketId");
+
                     b.HasOne("GCTOnlineServices.Models.BookedSeat", "BookedSeat")
                         .WithMany("BasketTickets")
                         .HasForeignKey("BookedSeatId")
@@ -418,10 +421,6 @@ namespace GCTOnlineServices.Migrations
                         .WithMany()
                         .HasForeignKey("PerformanceId")
                         .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("GCTOnlineServices.Models.ApplicationUser", "User")
-                        .WithOne("BasketTickets")
-                        .HasForeignKey("GCTOnlineServices.Models.BasketTicket", "UserId");
                 });
 
             modelBuilder.Entity("GCTOnlineServices.Models.BookedSeat", b =>

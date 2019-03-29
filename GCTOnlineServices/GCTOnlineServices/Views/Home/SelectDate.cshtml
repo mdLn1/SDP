@@ -25,15 +25,23 @@
                     </label>
                 </div>
                 <div class="form-group">
-                    <label class="control-label">Select one of the available dates: </label>
-                    <p>
-                        <select name="DateSelected">
-                            @foreach (var date in Model.Performances)
-                            {
-                                <option value="@date.Date">@date.Date</option>
-                            }
-                        </select>
-                    </p>
+                    @if (Model.Performances.Count > 0)
+                    {
+
+                        <label class="control-label">Select one of the available dates: </label>
+                        <p>
+                            <select name="DateSelected">
+                                @foreach (var date in Model.Performances)
+                                {
+                                    <option value="@date.Date">@date.Date</option>
+                                }
+                            </select>
+                        </p>
+                    }
+                    else
+                    {
+                        <label class="control-label">No available dates for now, please check again later! </label>
+                    }
                 </div>
             </div>
         </div>
@@ -48,9 +56,12 @@
                 </p>
             </div>
         </div>
-        <div class="form-group">
-            <input type="submit" value="Choose a Seat" class="btn btn-primary" />
-        </div>
+            @if (Model.Performances.Count > 0)
+            {
+                <div class="form-group">
+                    <input type="submit" value="Choose a Seat" class="btn btn-primary" />
+                </div>
+            }
     </form>
     <div>
         <a asp-action="Index" asp-controller="Home">Back to List</a>

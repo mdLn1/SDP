@@ -21,6 +21,10 @@ namespace GCTOnlineServices.Helpers
 
             CreateMap<Performance, TheatrePerformance>().ReverseMap();
 
+            CreateMap<ApplicationUser, EditUserDetails>();
+            CreateMap<EditUserDetails, ApplicationUser>()
+                .ForMember(d => d.Id, opt => opt.Ignore());
+
             CreateMap<TheatreSeat, SoldTicket>()
                 .ForMember(d => d.Id, opt =>
                 opt.Ignore())
@@ -30,7 +34,7 @@ namespace GCTOnlineServices.Helpers
 
             CreateMap<Play, PlayForCreation>();
 
-            CreateMap<Play, PerformanceEdit>().ReverseMap();
+            CreateMap<Play, EditPlay>().ReverseMap();
                 
 
             CreateMap<BasketTicket, TicketForBasket>()

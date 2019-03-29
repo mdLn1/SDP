@@ -8,80 +8,103 @@
 
 <h1>Basket</h1>
 
-@if (@Model.tickets.Count > 0)
+@if (SignInManager.IsSignedIn(User))
 {
-<div class="container">
-    <form asp-action="ChargeBasket" asp-controller="Home" method="post">
 
-        <div class="form-group">
-            <label class="control-label">Shipping :</label>
-            <p>
-                <select name="DeliverySelected">
-                    @foreach (var delivery in Model.DeliveryMethod)
-                    {
-                        <option value="@delivery">@delivery</option>
-                    }
-                </select>
-            </p>
-        </div>
-        <br />
-        @foreach (var item in Model.tickets)
+    @if (User.IsInRole("AgencyOrClub"))
+    {
+        @if (Model.ApprovedDiscounts != true)
         {
-            <div class="jumbotron">
-                <h1 class="display-4">@item.PerformanceName</h1>
-                <p class="lead"><span> @item.PerformanceTime </span></p>
-                <hr class="my-4">
-                <p><span>Seat: @item.SeatLetter  </span><span> Row: @item.RowNumber </span></p>
-                <p>
-                    <span>Chair Cost: @item.Price </span>
-                </p>
-                <a method="GET" asp-action="DeleteTicket" asp-controller="Home" asp-route-Id="@item.Id"><span class="btn btn-danger">Delete</span></a>
+
+            <div class="alert alert-warning">
+                <strong>Warning!</strong>
+                Discounts were not approved for this account yet. Please contact us!
             </div>
         }
-        <div class="form-group">
-            <label>Total Cost: @Model.Total <span>&#163;</span></label>
-        </div>
+    }
+}
 
-        <div class="form-group">
-            <input type="submit" value="Checkout" class="btn btn-primary" />
-        </div>
-    </form>
-
-
-    <div class="form-group">
-
-        @if (SignInManager.IsSignedIn(User))
-        {
-
-            @if (User.IsInRole("Customer") || User.IsInRole("AgencyOrClub"))
+@if (@Model.tickets.Count > 0)
+{
+    <div class="container">
+        <form asp-action="Checkout" asp-controller="Home" method="post">
+            <br />
+            @foreach (var item in Model.tickets)
             {
-                <div class="form-control">
-                    <span>Remember my details </span> @Html.CheckBoxFor(model => model.RememberMe)
+                <div class="jumbotron">
+                    <h1 class="display-4">@item.PerformanceName</h1>
+                    <p class="lead"><span> @item.PerformanceTime </span></p>
+                    <hr class="my-4">
+                    <p><span>Seat: @item.SeatLetter  </span><span> Row: @item.RowNumber </span></p>
+                    <p>
+                        <span>Chair Cost: @item.Price </span><span>&#163;</span>
+                    </p>
+                    <a method="GET" asp-action="DeleteTicket" asp-controller="Home" asp-route-Id="@item.Id"><span class="btn btn-danger">Delete</span></a>
                 </div>
-
             }
 
 
-            @if (!User.IsInRole("Customer") && !User.IsInRole("AgencyOrClub"))
-            {
-                <div class="form-group" id="custName">
-                    <label> Customer Name: </label>
-                    <input name="CustomerName" placeholder="Please Enter Customer Full Name here" class="form-control" />
-                </div>
+
+            <div class="form-group">
+
+                @if (SignInManager.IsSignedIn(User))
+                {
+
+                    @if (User.IsInRole("Customer") || User.IsInRole("AgencyOrClub"))
+                    {
+                        <div class="form-control">
+                            <span>Remember my details </span> @Html.CheckBoxFor(model => model.RememberMe)
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label">Shipping :</label>
+                            <p>
+                                <select name="selectedDelivery">
+                                    @foreach (var delivery in Model.DeliveryMethod)
+                                    {
+                                        <option value="@delivery">@delivery</option>
+                                    }
+                                </select>
+                            </p>
+                        </div>
+
+                    }
+
+
+                    @if (!User.IsInRole("Customer") && !User.IsInRole("AgencyOrClub"))
+                    {
+                        <div class="form-group" id="custName">
+                            <label> Customer Name: </label>
+                            <input name="CustomerName" placeholder="Please Enter Customer Full Name here" class="form-control" />
+                        </div>
+
+                    }
 
                 }
+            </div>
 
+            <div class="form-group">
+                @Html.HiddenFor(model => model.Total)
+                <label>Total Cost: @Model.Total <span>&#163;</span></label>
+            </div>
+            @if (User.IsInRole("Customer") || User.IsInRole("AgencyOrClub"))
+            {
+                @if (Model.SavedCard != null)
+                {
+                    <button type="submit" formaction='@Url.Action("UseSavedCard","Home")'>Pay with Saved Card</button>
+                }
+                else
+                {
+                    <script src="//checkout.stripe.com/v2/checkout.js"
+                            class="stripe-button"
+                            data-key="@Stripe.Value.PublishableKey"
+                            data-locale="auto"
+                            data-description="GCT Theatre"
+                            data-allow-remember-me="false">
+                    </script>
+                }
             }
-        </div>
-
-    <script src="//checkout.stripe.com/v2/checkout.js"
-            class="stripe-button"
-            data-key="@Stripe.Value.PublishableKey"
-            data-locale="auto"
-            data-description="GCT Theatre"
-            data-allow-remember-me="false">
-    </script>
-</div>
+        </form>
+    </div>
 }
 else
 {

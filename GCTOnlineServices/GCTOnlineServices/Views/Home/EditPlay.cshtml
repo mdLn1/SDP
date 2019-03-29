@@ -1,4 +1,4 @@
-﻿@model PerformanceEdit
+﻿@model EditPlay
 @{
     ViewData["Title"] = "Edit";
 }
@@ -26,7 +26,7 @@
                 <span asp-validation-for="PriceEnd" class="text-danger"></span>
             </div>
             <div class="form-group"><label>Performance dates will be approved only if date is from tomorrow onwards.</label></div>
-            <div class="form-group el-no-0">
+            <div class="form-group">
                 <label asp-for="LiveDates" class="control-label"></label>
                 <input asp-for="LiveDates[0]" class="form-control" />
                 <span asp-validation-for="LiveDates[0]" class="text-danger"></span>

@@ -1,7 +1,7 @@
 {
   "runtimeTarget": {
     "name": ".NETCoreApp,Version=v2.2",
-    "signature": "a300955f9fa64aa2a2df1d5a248b1a1c83ddfb62"
+    "signature": "91763efc58836e955114e9303d50e6c2cbd24416"
   },
   "compilationOptions": {
     "defines": [
@@ -30,6 +30,7 @@
           "Microsoft.EntityFrameworkCore.Tools": "2.2.3",
           "Microsoft.NETCore.App": "2.2.0",
           "Microsoft.VisualStudio.Web.CodeGeneration.Design": "2.2.3",
+          "Rotativa.AspNetCore": "1.1.1",
           "Stripe.net": "25.1.0"
         },
         "runtime": {
@@ -500,6 +501,20 @@
         },
         "compile": {
           "lib/netstandard1.0/Remotion.Linq.dll": {}
+        }
+      },
+      "Rotativa.AspNetCore/1.1.1": {
+        "dependencies": {
+          "Microsoft.AspNetCore.Mvc": "2.2.0"
+        },
+        "runtime": {
+          "lib/netstandard2.0/Rotativa.AspNetCore.dll": {
+            "assemblyVersion": "1.1.1.0",
+            "fileVersion": "1.1.1.0"
+          }
+        },
+        "compile": {
+          "lib/netstandard2.0/Rotativa.AspNetCore.dll": {}
         }
       },
       "Stripe.net/25.1.0": {
@@ -3794,6 +3809,13 @@
       "sha512": "sha512-twDAH8dAXXCAf3sRv1Tf94u66eEHvgU75hfn1nn2v4fSWXD50XoDOAk8WpSrbViNuMkB4kN1ElnOGm1c519IHg==",
       "path": "remotion.linq/2.2.0",
       "hashPath": "remotion.linq.2.2.0.nupkg.sha512"
+    },
+    "Rotativa.AspNetCore/1.1.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-8G2uvsUCWhqVON2EBp01zzcHRG9btkkO1u5B5byalSyyxgCL0iUpz5mYq5+HUQFIJ5DWEfSBx5vwVQSvx6L6DQ==",
+      "path": "rotativa.aspnetcore/1.1.1",
+      "hashPath": "rotativa.aspnetcore.1.1.1.nupkg.sha512"
     },
     "Stripe.net/25.1.0": {
       "type": "package",

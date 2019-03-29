@@ -18,7 +18,6 @@ namespace GCTOnlineServices.Models
         public bool? ApprovedMultipleDiscounts { get; set; }
 
         public virtual Basket Basket { get; set; }
-        public virtual BasketTicket BasketTickets { get; set; }
         public virtual ICollection<Order> Orders { get; set; }
         public virtual ICollection<Review> Reviews { get; set; }
     }
