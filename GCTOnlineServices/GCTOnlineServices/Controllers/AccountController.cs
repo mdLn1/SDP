@@ -62,6 +62,10 @@ namespace GCTOnlineServices.Controllers
             {
                 edit.RemoveSavedCard = false;
             }
+            else
+            {
+                edit.RemoveSavedCard = true;
+            }
 
             ViewData["ReturnUrl"] = returnUrl;
 

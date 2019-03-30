@@ -89,7 +89,7 @@
                 @Html.HiddenFor(model => model.Total)
                 <label>Total Cost: @Model.Total <span>&#163;</span></label>
             </div>
-            @if (User.IsInRole("SalesStaff") || User.IsInRole("MAnager"))
+            @if (User.IsInRole("SalesStaff") || User.IsInRole("Manager"))
             {
                 <script src="//checkout.stripe.com/v2/checkout.js"
                         class="stripe-button"
