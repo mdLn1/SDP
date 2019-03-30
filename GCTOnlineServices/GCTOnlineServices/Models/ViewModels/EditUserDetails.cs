@@ -45,5 +45,7 @@ namespace GCTOnlineServices.Models.ViewModels
 
         [Display(Name = "Remove saved card")]
         public bool RemoveSavedCard { get; set; }
+        
+        public string SavedCardId { get; set; }
     }
 }

@@ -60,13 +60,9 @@ namespace GCTOnlineServices.Controllers
             }
             if (user.SavedCustomerCard != null)
             {
-                edit.RemoveSavedCard = false;
+                edit.SavedCardId = user.SavedCustomerCard;
             }
-            else
-            {
-                edit.RemoveSavedCard = true;
-            }
-
+            edit.RemoveSavedCard = false;
             ViewData["ReturnUrl"] = returnUrl;
 
             return View(edit);
@@ -100,6 +96,11 @@ namespace GCTOnlineServices.Controllers
                     user.LastName = model.LastName;
                     user.IdNumber = model.IdNumber;
                     user.UserName = model.Email;
+                    if (model.PhoneNumber != null)
+                    {
+                        user.PhoneNumber = model.PhoneNumber;
+                    }
+
                     user.Address = model.FLAddress + "," + model.SLAddress + "," + model.PostCode;
                     if (model.RemoveSavedCard == true)
                     {

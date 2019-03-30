@@ -66,13 +66,11 @@
                         <input asp-for="PhoneNumber" class="form-control" />
                         <span asp-validation-for="PhoneNumber" class="text-danger"></span>
                     </div>
-                    @if (Model.RemoveSavedCard == false)
-                    {
-                        <div class="form-group">
+                        <div class="form-group"  @if (Model.SavedCardId == null) { <text> style="display:none;" </text> ; } >
                             <label asp-for="RemoveSavedCard"></label>
                             <input type="checkbox" asp-for="RemoveSavedCard" class="form-control" />
                         </div>
-                    }
+                    
 
                 }
 
