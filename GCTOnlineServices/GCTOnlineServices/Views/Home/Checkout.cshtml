@@ -12,10 +12,10 @@
         Dear <strong>@Model.PersonName</strong>, thanks for shopping with us!
     </div>
     <div class="alert alert-success">
-        You just paid: @Model.TotalCost
+        You just paid: @Model.TotalCost<span>&#163;</span>
         @if (Model.DiscountApplied)
         {
-            <strong>Today you saved @Model.Saved</strong>
+            <strong>Today you saved @Model.Saved</strong><span>&#163;</span>
         }
     </div>
 
@@ -47,7 +47,7 @@
                 <span class="font-weight-bold">Seat Letter :</span> @Model.Tickets.ElementAt(i).SeatLetter
             </p>
             <p>
-                <span>Price: @Model.Tickets.ElementAt(i).Price </span>
+                <span>Price: @Model.Tickets.ElementAt(i).Price </span><span>&#163;</span>
             </p>
         </div>
     }

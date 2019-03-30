@@ -27,7 +27,7 @@ namespace GCTOnlineServices.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly GCTContext _context;
         private readonly IMapper _mapper;
-        private TicketsToBuy _ticketsToBuy;
+        private ITicketsToBuy _ticketsToBuy;
 
         // constructor, services are injected through constructors
         public HomeController(

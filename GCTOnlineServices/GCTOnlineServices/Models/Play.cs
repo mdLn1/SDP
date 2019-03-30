@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace GCTOnlineServices.Models
 {
@@ -12,10 +13,14 @@ namespace GCTOnlineServices.Models
         }
 
         public int Id { get; set; }
+        [Display(Name = "Starting Price")]
         public decimal PriceStart { get; set; }
+        [Display(Name = "Last Price")]
         public decimal PriceEnd { get; set; }
+        [Display(Name = "Play Name")]
         public string Name { get; set; }
         public string Description { get; set; }
+        [Display(Name = "Age Restriction")]
         public string AgeRestriction { get; set; }
         public byte[] Picture { get; set; }
 

@@ -37,7 +37,8 @@ namespace GCTOnlineServices.Models.ViewModels
         [Display(Name = "First Line of Address")]
         public string FLAddress { get; set; }
         
-        [Display(Name = "Second Line of Address (optional)")]
+        [Required]
+        [Display(Name = "Second Line of Address")]
         public string SLAddress { get; set; }
 
         [Required]

@@ -19,8 +19,6 @@ namespace GCTOnlineServices.Helpers
                 .ReverseMap();
             
 
-            CreateMap<Performance, TheatrePerformance>().ReverseMap();
-
             CreateMap<ApplicationUser, EditUserDetails>();
             CreateMap<EditUserDetails, ApplicationUser>()
                 .ForMember(d => d.Id, opt => opt.Ignore());
@@ -35,29 +33,7 @@ namespace GCTOnlineServices.Helpers
             CreateMap<Play, PlayForCreation>();
 
             CreateMap<Play, EditPlay>().ReverseMap();
-                
-
-            CreateMap<BasketTicket, TicketForBasket>()
-                .ForMember(d => d.Band, opt =>
-                opt.MapFrom(s => s.BookedSeat.Seat.Band))
-                .ForMember(d => d.ColumnLetter, opt =>
-                opt.MapFrom(s => s.BookedSeat.Seat.ColumnLetter))
-                .ForMember(d => d.RowNumber, opt =>
-                opt.MapFrom(s => s.BookedSeat.Seat.RowNumber))
-                .ForMember(d => d.PerformanceTimeAndDate, opt =>
-                opt.MapFrom(s => s.Performance.Date))
-                .ForMember(d => d.PlayName, opt =>
-                opt.MapFrom(s => s.Performance.Play.Name));
-
-            CreateMap<Order, TicketOrder>()
-                .ForMember(d => d.DeliveryMethod, opt =>
-                opt.MapFrom(s => s.User.Basket.ShippingMethod));
-
-            CreateMap<SoldTicket, TicketSold>();
-
-            CreateMap<ApplicationUser, TheatreAgencyOrClub>().ReverseMap();
-            CreateMap<ApplicationUser, TheatreCustomer>().ReverseMap();
-            CreateMap<ApplicationUser, TheatreStaff>().ReverseMap();
+            
 
         }
     }
