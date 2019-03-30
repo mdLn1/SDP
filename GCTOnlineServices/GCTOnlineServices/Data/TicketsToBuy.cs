@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace GCTOnlineServices.Data
 {
+    // singleton implementation
     public class TicketsToBuy : ITicketsToBuy
     {
 
