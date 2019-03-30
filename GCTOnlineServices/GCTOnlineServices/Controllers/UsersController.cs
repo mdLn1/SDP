@@ -122,6 +122,12 @@ namespace GCTProject.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+            TempData["UserNotifier"] = new UserNotifier()
+            {
+                CssFormat = "alert-danger",
+                MessageType = "Error!",
+                Content = "User wa not created."
+            };
             return View(Staff);
         }
         

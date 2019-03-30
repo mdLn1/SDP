@@ -172,6 +172,7 @@ namespace GCTOnlineServices.Controllers
             {
                 PlayId = id
             };
+            ViewData["Id"] = id;
             return View(review);
 
         }
@@ -179,7 +180,7 @@ namespace GCTOnlineServices.Controllers
         // HttpPost create review and add it to database
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateReview([Bind("PlayId, Comment")] Models.Review review)
+        public async Task<IActionResult> CreateReview(int Id,[Bind("PlayId,Comment")] Models.Review review)
         {
             // check model
             if (ModelState.IsValid)
@@ -191,12 +192,34 @@ namespace GCTOnlineServices.Controllers
                 review.Date = DateTime.Now;
 
                 // find play and add to it the new review
-                var play = await _context.Plays.FirstOrDefaultAsync(x => x.Id == review.PlayId);
-                play.Reviews.Add(review);
+                if(review.PlayId != 0)
+                {
+                    var play = await _context.Plays.FirstOrDefaultAsync(x => x.Id == review.PlayId);
 
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(SelectDate), review.PlayId);
+                    play.Reviews.Add(review);
+
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
+                }
+                else
+                {
+                    var play = await _context.Plays.FirstOrDefaultAsync(x => x.Id == Id);
+
+                    play.Reviews.Add(review);
+
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
+                }
+                
+
             }
+            TempData["UserNotifier"] = new UserNotifier()
+            {
+                CssFormat = "alert-danger",
+                Content = "Something went wrong",
+                MessageType = "Error!"
+            };
+            ViewData["Id"] = Id;
             return View(review);
         }
 
@@ -293,8 +316,7 @@ namespace GCTOnlineServices.Controllers
         }
 
 
-        // display details of a review
-        [Authorize(Roles = "Manager,SalesStaff")]
+        // display details of a review 
         public async Task<IActionResult> DetailsReview(int? id)
         {
             // check if id assigned
@@ -439,29 +461,30 @@ namespace GCTOnlineServices.Controllers
             {
                 return NotFound();
             }
-            ViewData["PerformanceId"] = new SelectList(_context.Plays, "Id",
-                "Id", review.PlayId);
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", review.UserId);
+
             return View(review);
         }
         
         // submit changes to the edited review
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditReview(int id, [Bind("Id,Comment,Date")] Models.Review review)
+        public async Task<IActionResult> EditReview(int id, [Bind("Id,PlaId,Comment,Date")] Models.Review review)
         {
             // check the rigth review
             if (id != review.Id)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Index));
             }
 
             // check new review valid
             if (ModelState.IsValid)
             {
+                var foundReview = await _context.Reviews.FirstOrDefaultAsync(x => x.Id == review.Id);
+
                 try
                 {   //update review
-                    _context.Update(review);
+                    foundReview.Comment = review.Comment;
+                    _context.Update(foundReview);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -476,10 +499,8 @@ namespace GCTOnlineServices.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(SelectDate), review.PlayId);
+                return RedirectToAction(nameof(Index));
             }
-            ViewData["PerformanceId"] = new SelectList(_context.Plays, "Id", "Id", review.PlayId);
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", review.UserId);
             return View(review);
         }
 
@@ -737,7 +758,7 @@ namespace GCTOnlineServices.Controllers
             var play = _context.Plays.Include(x => x.Performances).Include(x => x.Reviews)
                 .FirstOrDefault(x => x.Id == Id);
 
-            var foundDates = play.Performances.Where(x => x.Date > DateTime.Now).OrderByDescending(x => x.Date).ToList();
+            var foundDates = play.Performances.Where(x => x.Date > DateTime.Now).OrderBy(x => x.Date).ToList();
 
             TheatrePlay currentPlay = _mapper.Map<TheatrePlay>(play);
             currentPlay.Performances = foundDates;
@@ -789,7 +810,7 @@ namespace GCTOnlineServices.Controllers
             else
             {
                 // if basket empty return Basket View
-                return View(nameof(Basket));
+                return RedirectToAction(nameof(Basket));
             }
                 var chargeOptions = new ChargeCreateOptions
             {
@@ -919,7 +940,7 @@ namespace GCTOnlineServices.Controllers
                 {
                     ticketAndReceipt.Saved = Total - finalPrice;
                 }
-                return View(ticketAndReceipt);
+                return View(nameof(Checkout), ticketAndReceipt);
             }
             else
             {
@@ -928,6 +949,12 @@ namespace GCTOnlineServices.Controllers
             }
 
 
+        }
+
+        // when user paid with saved card
+        public IActionResult Checkout(TicketAndReceipt ticketAndReceipt)
+        {
+            return View(ticketAndReceipt);
         }
 
         [HttpPost]

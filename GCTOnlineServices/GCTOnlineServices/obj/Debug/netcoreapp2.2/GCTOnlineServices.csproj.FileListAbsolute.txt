@@ -128,7 +128,6 @@ D:\repo\GCTOnlineServices\GCTOnlineServices\obj\Debug\netcoreapp2.2\Razor\Views\
 D:\repo\GCTOnlineServices\GCTOnlineServices\obj\Debug\netcoreapp2.2\Razor\Views\Account\Login.g.cshtml.cs
 D:\repo\GCTOnlineServices\GCTOnlineServices\obj\Debug\netcoreapp2.2\Razor\Views\Account\Register.g.cshtml.cs
 D:\repo\GCTOnlineServices\GCTOnlineServices\obj\Debug\netcoreapp2.2\Razor\Views\Home\Basket.g.cshtml.cs
-D:\repo\GCTOnlineServices\GCTOnlineServices\obj\Debug\netcoreapp2.2\Razor\Views\Home\BuyNow.g.cshtml.cs
 D:\repo\GCTOnlineServices\GCTOnlineServices\obj\Debug\netcoreapp2.2\Razor\Views\Home\Charge.g.cshtml.cs
 D:\repo\GCTOnlineServices\GCTOnlineServices\obj\Debug\netcoreapp2.2\Razor\Views\Home\CreatePlay.g.cshtml.cs
 D:\repo\GCTOnlineServices\GCTOnlineServices\obj\Debug\netcoreapp2.2\Razor\Views\Home\CreateReview.g.cshtml.cs
@@ -167,3 +166,4 @@ D:\repo\GCTOnlineServices\GCTOnlineServices\obj\Debug\netcoreapp2.2\GCTOnlineSer
 D:\repo\GCTOnlineServices\GCTOnlineServices\obj\Debug\netcoreapp2.2\Razor\Views\Home\PrintTickets.g.cshtml.cs
 D:\repo\GCTOnlineServices\GCTOnlineServices\obj\Debug\netcoreapp2.2\Razor\Views\Users\GetAgencies.g.cshtml.cs
 D:\repo\GCTOnlineServices\GCTOnlineServices\obj\Debug\netcoreapp2.2\Razor\Views\Home\AllOrders.g.cshtml.cs
+D:\repo\GCTOnlineServices\GCTOnlineServices\obj\Debug\netcoreapp2.2\Razor\Views\Home\Checkout.g.cshtml.cs

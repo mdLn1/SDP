@@ -52,9 +52,12 @@
 
                     @if (User.IsInRole("Customer") || User.IsInRole("AgencyOrClub"))
                     {
-                        <div class="form-control">
-                            <span>Remember my details </span> @Html.CheckBoxFor(model => model.RememberMe)
-                        </div>
+                        @if (Model.SavedCard == null)
+                        {
+                            <div class="form-control">
+                                <span>Remember my details </span> @Html.CheckBoxFor(model => model.RememberMe)
+                            </div>
+                        }
                         <div class="form-group">
                             <label class="control-label">Shipping :</label>
                             <p>
@@ -86,23 +89,33 @@
                 @Html.HiddenFor(model => model.Total)
                 <label>Total Cost: @Model.Total <span>&#163;</span></label>
             </div>
-            @if (User.IsInRole("Customer") || User.IsInRole("AgencyOrClub"))
+            @if (User.IsInRole("SalesStaff") || User.IsInRole("MAnager"))
             {
-                @if (Model.SavedCard != null)
-                {
-                    <button type="submit" formaction='@Url.Action("UseSavedCard","Home")'>Pay with Saved Card</button>
-                }
-                else
-                {
-                    <script src="//checkout.stripe.com/v2/checkout.js"
-                            class="stripe-button"
-                            data-key="@Stripe.Value.PublishableKey"
-                            data-locale="auto"
-                            data-description="GCT Theatre"
-                            data-allow-remember-me="false">
-                    </script>
-                }
+                <script src="//checkout.stripe.com/v2/checkout.js"
+                        class="stripe-button"
+                        data-key="@Stripe.Value.PublishableKey"
+                        data-locale="auto"
+                        data-description="GCT Theatre"
+                        data-allow-remember-me="false">
+                </script>
             }
+                @if (User.IsInRole("Customer") || User.IsInRole("AgencyOrClub"))
+                {
+                    @if (Model.SavedCard != null)
+                    {
+                        <button type="submit" formaction='@Url.Action("UseSavedCard","Home")'>Pay with Saved Card</button>
+                    }
+                    else
+                    {
+                        <script src="//checkout.stripe.com/v2/checkout.js"
+                                class="stripe-button"
+                                data-key="@Stripe.Value.PublishableKey"
+                                data-locale="auto"
+                                data-description="GCT Theatre"
+                                data-allow-remember-me="false">
+                        </script>
+                    }
+                }
         </form>
     </div>
 }

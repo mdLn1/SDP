@@ -87,7 +87,7 @@
     else
     {
         <p>
-            <a asp-action="CreateReview" asp-route-Id="@ViewData["PerformanceId"]">Create New</a>
+            <a asp-action="CreateReview" asp-route-Id="@Model.Id">Create New</a>
         </p>
     }
     @if (!Model.Reviews.Any())
