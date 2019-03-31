@@ -29,18 +29,6 @@
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.Date)
         </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Play)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Play.Id)
-        </dd class>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.User)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.User.Id)
-        </dd class>
     </dl>
     
     <form asp-action="DeleteReview">
@@ -48,6 +36,6 @@
         <input type="hidden" asp-for="PlayId" />
         <input type="hidden" asp-for="UserId" />
         <input type="submit" value="Delete" class="btn btn-danger" /> |
-        <a asp-action="IndexReviews">Back to List</a>
+        <a asp-action="Index">Back to List</a>
     </form>
 </div>

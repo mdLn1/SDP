@@ -923,6 +923,9 @@ namespace GCTOnlineServices.Controllers
                     if (user.ApprovedMultipleDiscounts == true)
                     {
                         finalPrice = finalPrice * 9 / 10;
+                    } else
+                    {
+                        finalPrice = finalPrice * (decimal)9.5 / 10;
                     }
                 }
                 // create tickets and receipt view
@@ -1081,6 +1084,10 @@ namespace GCTOnlineServices.Controllers
                         {
                             finalPrice = finalPrice * 9 / 10;
                         }
+                        else
+                        {
+                            finalPrice = finalPrice * (decimal)9.5 / 10;
+                        }
                     }
                     // cereate tickets and receipt view
                     TicketAndReceipt ticketAndReceipt = new TicketAndReceipt()
@@ -1101,15 +1108,16 @@ namespace GCTOnlineServices.Controllers
                 }
                 else
                 {
-                    TempData["UserNotifier"] = new UserNotifier()
-                    {
-                        CssFormat = "alert-danger",
-                        Content = "Payment was declined",
-                        MessageType = "Error!"
-                    };
                     return RedirectToAction(nameof(Basket));
                 }
             }
+
+            TempData["UserNotifier"] = new UserNotifier()
+            {
+                CssFormat = "alert-danger",
+                Content = "Payment was declined",
+                MessageType = "Error!"
+            };
             return View();
         }
 
