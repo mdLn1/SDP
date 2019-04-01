@@ -1134,7 +1134,7 @@ namespace GCTOnlineServices.Controllers
             
             // find the performance
             var perfDate = _context.Performances.Include(x => x.Play)
-                .Include(x => x.BookedSeats).ThenInclude(x => x.Seat)
+                .Include(x => x.BookedSeats).ThenInclude(y => y.Seat)
                 .FirstOrDefault(x => x.Date == DateTime.Parse(DateSelected));
 
             // find the different bands
@@ -1174,13 +1174,21 @@ namespace GCTOnlineServices.Controllers
 
             var user = await _userManager.GetUserAsync(User);
 
-            // check if there were seats not booked but saved to basket and longer than 10 minutes
+            // check if there were seats not booked but saved to basket and longer than 10 minutes, and rmeove them
             foreach (BookedSeat seat in perfDate.BookedSeats)
             {
                 if (seat.Booked == 1 && seat.ExpiryTime < DateTime.Now)
                 {
                     seat.Booked = 0;
                     _context.Update(seat);
+                    var basketTicket = _context.BasketTickets.Where(x => x.BookedSeatId == seat.Id);
+                    // clear the expired tickets from customer's basket when someone checks a particular performance
+                    foreach (var ticket in basketTicket)
+                    {
+                        _context.BasketTickets.Remove(ticket);
+                    }
+
+                    await _context.SaveChangesAsync();
                 }
             }
 
